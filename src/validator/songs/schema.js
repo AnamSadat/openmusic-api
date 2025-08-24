@@ -5,8 +5,8 @@ const SongsSchema = Joi.object({
   year: Joi.number().required(),
   performer: Joi.string().required(),
   genre: Joi.string().required(),
-  duration: Joi.number().optional(),
-  albumId: Joi.string().optional(),
+  duration: Joi.number(),
+  albumId: Joi.string(),
 });
 
 export default SongsSchema;
