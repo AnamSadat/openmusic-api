@@ -2,13 +2,18 @@ import Hapi from '@hapi/hapi';
 import dotenv from 'dotenv';
 import ClientError from './exceptions/ClientError.js';
 import albums from './api/albums/index.js';
+import songs from './api/songs/index.js';
 import AlbumsValidator from './validator/albums/index.js';
+import SongsValidator from './validator/songs/index.js';
 import AlbumServices from './services/AlbumServices.js';
+import SongServices from './services/SongServices.js';
 
 dotenv.config();
 
 const init = async () => {
-  const albumsServices = new AlbumServices();
+  const albumService = new AlbumServices();
+  const songService = new SongServices();
+
   const server = Hapi.server({
     port: process.env.PORT,
     host: process.env.HOST,
@@ -19,7 +24,7 @@ const init = async () => {
     },
   });
 
-  await server.ext('onPreResponse', (request, h) => {
+  server.ext('onPreResponse', (request, h) => {
     const { response } = request;
 
     if (response instanceof ClientError) {
@@ -32,10 +37,10 @@ const init = async () => {
     }
 
     if (response instanceof Error) {
-      console.error(response); // <— log error ke console
+      console.error(response);
       const newResponse = h.response({
         status: 'error',
-        message: 'An internal server error occurred',
+        message: 'Terjadi kesalahan pada server',
       });
       newResponse.code(500);
       return newResponse;
@@ -48,8 +53,15 @@ const init = async () => {
     {
       plugin: albums,
       options: {
-        service: albumsServices,
+        service: albumService,
         validator: AlbumsValidator,
+      },
+    },
+    {
+      plugin: songs,
+      options: {
+        service: songService,
+        validator: SongsValidator,
       },
     },
   ]);

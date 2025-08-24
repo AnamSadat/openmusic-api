@@ -12,6 +12,7 @@
     "linebreak-style": "off",
     "no-underscore-dangle": "off",
     "camelcase": "off",
+    "object-curly-newline": "off",
     "import/extensions": [
       "error",
       "ignorePackages",

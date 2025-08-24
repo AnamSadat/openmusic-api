@@ -22,7 +22,7 @@ export const up = (pgm) => {
       type: 'INT',
       notNull: true,
     },
-    permorfer: {
+    performer: {
       type: 'TEXT',
       notNull: true,
     },
