@@ -101,12 +101,21 @@ Test semua endpoint dengan validasi data sesuai requirement.
 
 ```tree
 openmusic-api/
-├─ api/             # Route & handler
-├─ services/        # Logic bisnis
-├─ validator/       # Validasi dengan Joi
-├─ db/              # Koneksi dan query PostgreSQL
-├─ exceptions/      # Custom error handling
-├─ server.js        # Entry point aplikasi
-├─ package.json
-└─ README.md
+├── migrations          # Folder berisi skrip migrasi database (PostgreSQL)
+├── postman             # Folder berisi collection Postman untuk testing API
+├── src                 # Folder utama kode sumber aplikasi
+│   ├── api             # Route & handler Hapi untuk endpoint API
+│   ├── exceptions      # Kelas custom error handling
+│   ├── services        # Logic bisnis aplikasi (interaksi DB)
+│   ├── validator       # Validasi data input menggunakan Joi
+│   └── server.js       # Entry point aplikasi, konfigurasi Hapi server
+├── .env                # Environment variables untuk konfigurasi lokal
+├── .env.example        # Contoh format file .env
+├── .eslintrc.json      # Konfigurasi ESLint untuk menjaga kualitas kode
+├── .gitignore          # File untuk mengecualikan file/folder dari Git
+├── .prettierrc         # Konfigurasi Prettier untuk format kode
+├── package-lock.json   # Lock file npm, mencatat versi pasti dependensi
+├── package.json        # Metadata proyek, dependensi, script npm
+└── README.md           # Dokumentasi proyek, cara setup dan penggunaan
+
 ```
