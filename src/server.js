@@ -1,18 +1,30 @@
 import Hapi from '@hapi/hapi';
 import dotenv from 'dotenv';
+
+// exception error
 import ClientError from './exceptions/ClientError.js';
+
+// api
 import albums from './api/albums/index.js';
 import songs from './api/songs/index.js';
+import users from './api/users/index.js';
+
+// validator
 import AlbumsValidator from './validator/albums/index.js';
 import SongsValidator from './validator/songs/index.js';
+import UsersValidator from './validator/users/index.js';
+
+// service
 import AlbumServices from './services/AlbumServices.js';
 import SongServices from './services/SongServices.js';
+import UserServices from './services/UserServices.js';
 
 dotenv.config();
 
 const init = async () => {
   const albumService = new AlbumServices();
   const songService = new SongServices();
+  const userServices = new UserServices();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -62,6 +74,13 @@ const init = async () => {
       options: {
         service: songService,
         validator: SongsValidator,
+      },
+    },
+    {
+      plugin: users,
+      options: {
+        service: userServices,
+        validator: UsersValidator,
       },
     },
   ]);

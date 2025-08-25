@@ -1,0 +1,6 @@
+# Running Postman CLI
+
+postman login your-api-key
+
+postman collection run ./postman/v2/openmusic_api_v2_collection.json -e ./postman/v2/openmusic_api_v2_environment.json
+
