@@ -50,6 +50,7 @@ const init = async () => {
     const { response } = request;
 
     if (response instanceof ClientError) {
+      console.error('[ClientError]', response);
       const newResponse = h.response({
         status: 'fail',
         message: response.message,
@@ -59,11 +60,30 @@ const init = async () => {
     }
 
     if (response.isBoom) {
+      const { statusCode } = response.output;
+
+      switch (statusCode) {
+        case 400:
+          console.error('[BoomError 400] Bad Request:', response);
+          break;
+        case 401:
+          console.error('[BoomError 401] Unauthorized:', response);
+          break;
+        case 403:
+          console.error('[BoomError 403] Forbidden:', response);
+          break;
+        case 404:
+          console.error('[BoomError 404] Not Found:', response);
+          break;
+        default:
+          console.error(`[BoomError ${statusCode}]`, response);
+      }
+
       return h.continue;
     }
 
     if (response instanceof Error) {
-      console.error(response);
+      console.error('[ServerError]', response);
       const newResponse = h.response({
         status: 'error',
         message: 'Terjadi kesalahan pada server',

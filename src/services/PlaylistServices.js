@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 import { Pool } from 'pg';
 import InvariantError from '../exceptions/InvariantError.js';
 import NotFoundError from '../exceptions/NotFoundError.js';
+import ForbiddenError from '../exceptions/ForbiddenError.js';
 
 class PlaylistServices {
   constructor() {
@@ -54,8 +55,30 @@ class PlaylistServices {
     if (!result.rows.length) throw new NotFoundError('Gagal menghapus, ID tidak ditemukan');
   }
 
-  async addSongWithPlaylist() {
-    // TODO: Create ENDPOINT GET /playlists/{id}/songs
+  async addSongWithPlaylist(playlistId, songId, userId) {
+    const checkSongId = await this._pool.query({
+      text: 'SELECT * FROM songs WHERE id = $1',
+      values: [songId],
+    });
+
+    if (!checkSongId.rows.length) throw new NotFoundError('dong id gk ada');
+
+    const checkPlaylistOwner = await this._pool.query({
+      text: 'SELECT * FROM playlists WHERE id = $1 AND owner = $2',
+      values: [playlistId, userId],
+    });
+
+    if (!checkPlaylistOwner.rows.length) throw new ForbiddenError('Playlist tidak dimiliki user ini');
+
+    const id = nanoid(16);
+    const query = {
+      text: 'INSERT INTO playlist_songs (id, playlist_id, song_id) VALUES($1, $2, $3) RETURNING id',
+      values: [id, playlistId, songId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) throw new InvariantError('Musik gagal ditambahkan kedalam playlist');
   }
 }
 

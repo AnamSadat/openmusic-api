@@ -45,6 +45,25 @@ class PlaylistHandler {
 
     return response;
   }
+
+  async postPlaylistSongByIdHandler(request, h) {
+    this._validator.validateSongPlaylistPayload(request.payload);
+
+    const { songId } = request.payload;
+    const { id: playlistId } = request.params;
+    const { id: credentials } = request.auth.credentials;
+
+    await this._service.addSongWithPlaylist(playlistId, songId, credentials);
+
+    const response = h
+      .response({
+        status: 'success',
+        message: 'Berhasil nambah song di playlist',
+      })
+      .code(201);
+
+    return response;
+  }
 }
 
 export default PlaylistHandler;
