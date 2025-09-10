@@ -28,6 +28,6 @@ postman collection run ./postman/v1/openmusic_api_v1_collection.json -e ./postma
 postman collection run ./postman/v2/openmusic_api_v2_collection.json -e ./postman/v2/openmusic_api_v2_environment.json
 ```
 
-### V3
+### v3
 
 > Coming Soon
