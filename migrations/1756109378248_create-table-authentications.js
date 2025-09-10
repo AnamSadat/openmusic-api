@@ -10,7 +10,7 @@ export const shorthands = undefined;
  */
 export const up = (pgm) => {
   pgm.createTable('auth', {
-    token: {
+    refreshToken: {
       type: 'TEXT',
       notNull: true,
     },
