@@ -46,6 +46,8 @@ class PlaylistServices {
   }
 
   async deletePlaylist(id) {
+    if (!id) throw new InvariantError('ID is required');
+
     const query = {
       text: 'DELETE FROM playlists WHERE id = $1 RETURNING id',
       values: [id],
@@ -53,7 +55,7 @@ class PlaylistServices {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) throw new NotFoundError('Gagal menghapus, ID tidak ditemukan');
+    if (!result.rows.length) console.log('tidak ada yang dihapus');
   }
 
   async addSongWithPlaylist(playlistId, songId, userId) {
@@ -102,6 +104,8 @@ class PlaylistServices {
     if (!id) throw new InvariantError('Id is required');
     if (!credentials) throw new AuthError('Credentials is no exist');
 
+    await this.verifyPlaylistOwner(id, credentials);
+
     const query = {
       text: `
       SELECT playlists.id, playlists.name, users.username,
@@ -135,6 +139,25 @@ class PlaylistServices {
       username,
       songs,
     };
+  }
+
+  async deleteSongByIdPlaylist(id, credentials, playlistId) {
+    console.log('🚀 ~ PlaylistServices ~ deleteSongByIdPlaylist ~ id:', id);
+    if (!id) throw new InvariantError('ID is reuqired');
+    console.log('🚀 ~ PlaylistServices ~ deleteSongByIdPlaylist ~ credentials:', credentials);
+    if (!credentials) throw new InvariantError('Credentials is required');
+
+    const query = {
+      text: 'DELETE FROM playlist_songs WHERE song_id = $1 AND playlist_id = $2 RETURNING id',
+      values: [id, playlistId],
+    };
+
+    const result = await this._pool.query(query);
+    console.log('🚀 ~ PlaylistServices ~ deleteSongByIdPlaylist ~ result:', result.rows.length);
+
+    if (!result.rows.length) {
+      console.log('🚀 ~ PlaylistServices ~ deleteSongByIdPlaylist ~ tidak ada yang dihapus');
+    }
   }
 }
 
