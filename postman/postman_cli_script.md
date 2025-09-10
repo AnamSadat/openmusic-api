@@ -14,7 +14,7 @@ postman login <your-api-key>
 
 ## Run a Collection
 
-### V1
+### v1
 
 ```bash
 
@@ -22,7 +22,7 @@ postman login <your-api-key>
 postman collection run ./postman/v1/openmusic_api_v1_collection.json -e ./postman/v1/openmusic_api_v1_environment.json
 ```
 
-### V2
+### v2
 
 ```bash
 postman collection run ./postman/v2/openmusic_api_v2_collection.json -e ./postman/v2/openmusic_api_v2_environment.json
