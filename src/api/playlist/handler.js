@@ -64,6 +64,30 @@ class PlaylistHandler {
 
     return response;
   }
+
+  async getSongByIdPlaylist(request, h) {
+    const { id: credentials } = request.auth.credentials;
+    console.log('🚀 ~ PlaylistHandler ~ getSongByIdPlaylist ~ credentials:', credentials);
+    const { id } = request.params;
+    console.log('🚀 ~ PlaylistHandler ~ getSongByIdPlaylist ~ playlistJhon:', id);
+    console.log('setelah destructure');
+
+    await this._service.verifyPlaylistOwner(id, credentials);
+
+    const playlist = await this._service.getSongByIdPlaylist(id, credentials);
+    console.log('setelah playlist');
+
+    const response = h
+      .response({
+        status: 'success',
+        data: {
+          playlist,
+        },
+      })
+      .code(200);
+
+    return response;
+  }
 }
 
 export default PlaylistHandler;

@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 import InvariantError from '../exceptions/InvariantError.js';
 import NotFoundError from '../exceptions/NotFoundError.js';
 import ForbiddenError from '../exceptions/ForbiddenError.js';
+import AuthError from '../exceptions/AuthError.js';
 
 class PlaylistServices {
   constructor() {
@@ -79,6 +80,61 @@ class PlaylistServices {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) throw new InvariantError('Musik gagal ditambahkan kedalam playlist');
+  }
+
+  async verifyPlaylistOwner(playlistId, owner) {
+    const query = {
+      text: 'SELECT owner FROM playlists WHERE id = $1',
+      values: [playlistId],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rows.length) throw new NotFoundError('Playlist tidak ditemukan');
+
+    const playlist = result.rows[0];
+
+    if (playlist.owner !== owner) {
+      throw new ForbiddenError('Anda tidak berhak mengakses resource ini');
+    }
+  }
+
+  async getSongByIdPlaylist(id, credentials) {
+    if (!id) throw new InvariantError('Id is required');
+    if (!credentials) throw new AuthError('Credentials is no exist');
+
+    const query = {
+      text: `
+      SELECT playlists.id, playlists.name, users.username,
+             songs.id AS song_id, songs.title, songs.performer
+      FROM playlists
+      JOIN users ON users.id = playlists.owner
+      LEFT JOIN playlist_songs ON playlist_songs.playlist_id = playlists.id
+      LEFT JOIN songs ON songs.id = playlist_songs.song_id
+      WHERE playlists.id = $1
+      LIMIT 2
+    `,
+      values: [id],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rows.length) throw new InvariantError('Gagal mengambil song di playlist');
+
+    const { id: playlistId, name, username } = result.rows[0];
+
+    const songs = result.rows
+      .filter((row) => row.song_id)
+      .map((row) => ({
+        id: row.song_id,
+        title: row.title,
+        performer: row.performer,
+      }));
+
+    return {
+      id: playlistId,
+      name,
+      username,
+      songs,
+    };
   }
 }
 
