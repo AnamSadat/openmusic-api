@@ -10,22 +10,27 @@ import albums from './api/albums/index.js';
 import songs from './api/songs/index.js';
 import users from './api/users/index.js';
 import auth from './api/auth/index.js';
+import playlist from './api/playlist/index.js';
+import collabs from './api/collabs/index.js';
 
 // validator
 import AlbumsValidator from './validator/albums/index.js';
 import SongsValidator from './validator/songs/index.js';
 import UsersValidator from './validator/users/index.js';
 import AuthValidator from './validator/auth/index.js';
+import PlaylistValidator from './validator/playlist/index.js';
+import CollabValidator from './validator/collabs/index.js';
 
 // service
 import AlbumServices from './services/AlbumServices.js';
 import SongServices from './services/SongServices.js';
 import UserServices from './services/UserServices.js';
 import AuthServices from './services/AuthServices.js';
-import TokenManager from './tokenize/TokenManager.js';
-import playlist from './api/playlist/index.js';
 import PlaylistServices from './services/PlaylistServices.js';
-import PlaylistValidator from './validator/playlist/index.js';
+import CollabServices from './services/CollabServices.js';
+
+// token
+import TokenManager from './tokenize/TokenManager.js';
 
 dotenv.config();
 
@@ -35,6 +40,7 @@ const init = async () => {
   const usersService = new UserServices();
   const authService = new AuthServices();
   const playlistService = new PlaylistServices();
+  const collabServices = new CollabServices();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -153,6 +159,15 @@ const init = async () => {
       options: {
         service: playlistService,
         validator: PlaylistValidator,
+      },
+    },
+    {
+      plugin: collabs,
+      options: {
+        collabServices,
+        playlistService,
+        usersService,
+        validator: CollabValidator,
       },
     },
   ]);

@@ -30,7 +30,7 @@ class PlaylistHandler {
     return response;
   }
 
-  async getAllPlaylist(request, h) {
+  async getAllPlaylistHandler(request, h) {
     const credentials = await request.auth.credentials;
     const playlists = await this._service.getPlaylist(credentials);
 
@@ -61,6 +61,72 @@ class PlaylistHandler {
         message: 'Berhasil nambah song di playlist',
       })
       .code(201);
+
+    return response;
+  }
+
+  async getSongByIdPlaylistHandler(request, h) {
+    const { id: credentials } = request.auth.credentials;
+    console.log('🚀 ~ PlaylistHandler ~ getSongByIdPlaylist ~ credentials:', credentials);
+    const { id } = request.params;
+    console.log('🚀 ~ PlaylistHandler ~ getSongByIdPlaylist ~ playlistJhon:', id);
+    console.log('setelah destructure');
+
+    const playlist = await this._service.getSongByIdPlaylist(id, credentials);
+    console.log('setelah playlist');
+
+    const response = h
+      .response({
+        status: 'success',
+        data: {
+          playlist,
+        },
+      })
+      .code(200);
+
+    return response;
+  }
+
+  async deleteSongByIdPlaylistHandler(request, h) {
+    this._validator.validateSongPlaylistPayload(request.payload);
+
+    const { id: credentials } = request.auth.credentials;
+    console.log('🚀 ~ PlaylistHandler ~ deleteSongByIdPlaylist ~ credentials:', credentials);
+    const { songId } = request.payload;
+    console.log('🚀 ~ PlaylistHandler ~ deleteSongByIdPlaylist ~ songId:', songId);
+    const { id } = request.params;
+    console.log('🚀 ~ PlaylistHandler ~ deleteSongByIdPlaylist ~ playlistId:', id);
+    console.log('Sebelum validate');
+
+    await this._service.verifyPlaylistOwner(id, credentials);
+    console.log('sesudah validate');
+
+    await this._service.deleteSongByIdPlaylist(songId, credentials, id);
+    console.log('sesudah delete');
+
+    const response = h
+      .response({
+        status: 'success',
+        message: 'Berhasil dihapus',
+      })
+      .code(200);
+
+    return response;
+  }
+
+  async deletePlaylistHandler(request, h) {
+    const { id } = request.params;
+    const { id: credentials } = request.auth.credentials;
+
+    await this._service.verifyPlaylistOwner(id, credentials);
+    await this._service.deletePlaylist(id);
+
+    const response = h
+      .response({
+        status: 'success',
+        message: 'Berhasil dihapus',
+      })
+      .code(200);
 
     return response;
   }

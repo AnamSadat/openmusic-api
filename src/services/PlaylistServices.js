@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 import InvariantError from '../exceptions/InvariantError.js';
 import NotFoundError from '../exceptions/NotFoundError.js';
 import ForbiddenError from '../exceptions/ForbiddenError.js';
+import AuthError from '../exceptions/AuthError.js';
 
 class PlaylistServices {
   constructor() {
@@ -45,6 +46,8 @@ class PlaylistServices {
   }
 
   async deletePlaylist(id) {
+    if (!id) throw new InvariantError('ID is required');
+
     const query = {
       text: 'DELETE FROM playlists WHERE id = $1 RETURNING id',
       values: [id],
@@ -52,7 +55,7 @@ class PlaylistServices {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) throw new NotFoundError('Gagal menghapus, ID tidak ditemukan');
+    if (!result.rows.length) console.log('tidak ada yang dihapus');
   }
 
   async addSongWithPlaylist(playlistId, songId, userId) {
@@ -79,6 +82,82 @@ class PlaylistServices {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) throw new InvariantError('Musik gagal ditambahkan kedalam playlist');
+  }
+
+  async verifyPlaylistOwner(playlistId, owner) {
+    const query = {
+      text: 'SELECT owner FROM playlists WHERE id = $1',
+      values: [playlistId],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rows.length) throw new NotFoundError('Playlist tidak ditemukan');
+
+    const playlist = result.rows[0];
+
+    if (playlist.owner !== owner) {
+      throw new ForbiddenError('Anda tidak berhak mengakses resource ini');
+    }
+  }
+
+  async getSongByIdPlaylist(id, credentials) {
+    if (!id) throw new InvariantError('Id is required');
+    if (!credentials) throw new AuthError('Credentials is no exist');
+
+    await this.verifyPlaylistOwner(id, credentials);
+
+    const query = {
+      text: `
+      SELECT playlists.id, playlists.name, users.username,
+             songs.id AS song_id, songs.title, songs.performer
+      FROM playlists
+      JOIN users ON users.id = playlists.owner
+      LEFT JOIN playlist_songs ON playlist_songs.playlist_id = playlists.id
+      LEFT JOIN songs ON songs.id = playlist_songs.song_id
+      WHERE playlists.id = $1
+      LIMIT 2
+    `,
+      values: [id],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rows.length) throw new InvariantError('Gagal mengambil song di playlist');
+
+    const { id: playlistId, name, username } = result.rows[0];
+
+    const songs = result.rows
+      .filter((row) => row.song_id)
+      .map((row) => ({
+        id: row.song_id,
+        title: row.title,
+        performer: row.performer,
+      }));
+
+    return {
+      id: playlistId,
+      name,
+      username,
+      songs,
+    };
+  }
+
+  async deleteSongByIdPlaylist(id, credentials, playlistId) {
+    console.log('🚀 ~ PlaylistServices ~ deleteSongByIdPlaylist ~ id:', id);
+    if (!id) throw new InvariantError('ID is reuqired');
+    console.log('🚀 ~ PlaylistServices ~ deleteSongByIdPlaylist ~ credentials:', credentials);
+    if (!credentials) throw new InvariantError('Credentials is required');
+
+    const query = {
+      text: 'DELETE FROM playlist_songs WHERE song_id = $1 AND playlist_id = $2 RETURNING id',
+      values: [id, playlistId],
+    };
+
+    const result = await this._pool.query(query);
+    console.log('🚀 ~ PlaylistServices ~ deleteSongByIdPlaylist ~ result:', result.rows.length);
+
+    if (!result.rows.length) {
+      console.log('🚀 ~ PlaylistServices ~ deleteSongByIdPlaylist ~ tidak ada yang dihapus');
+    }
   }
 }
 
