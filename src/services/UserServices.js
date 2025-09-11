@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import { nanoid } from 'nanoid';
 import bcrypt from 'bcrypt';
 import InvariantError from '../exceptions/InvariantError.js';
-import NotFoundError from '../exceptions/ClientError.js';
+import NotFoundError from '../exceptions/NotFoundError.js';
 import AuthError from '../exceptions/AuthError.js';
 
 class UserService {
