@@ -2,7 +2,7 @@
 
 OpenMusic API adalah aplikasi backend untuk mengelola data lagu, dibangun menggunakan **JavaScript**, **Node.js**, dan **Hapi Framework**. API ini menyediakan fitur untuk menambah, membaca, memperbarui, dan menghapus lagu dengan validasi data yang aman dan efisien.
 
-> 💡 **Submission ini dibuat untuk Dicoding Fundamental Backend JavaScript.**
+> 💡 **Submission Dicoding Fundamental Backend JavaScript.**
 
 [![Node.js](https://img.shields.io/badge/Node.js-22.x-green?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Hapi.js](https://img.shields.io/badge/Hapi.js-v21-blue)](https://hapi.dev/)
@@ -17,6 +17,13 @@ OpenMusic API adalah aplikasi backend untuk mengelola data lagu, dibangun menggu
 - **Data Validation:** Menggunakan **Joi** untuk memastikan input valid.
 - **Database:** Menggunakan **PostgreSQL** untuk penyimpanan data yang handal.
 - **Hapi Plugin:** Struktur modular untuk memisahkan fitur dan service.
+- **Authentication** & Authorization: Login menggunakan JWT untuk memastikan hanya pengguna yang berhak dapat mengakses data.
+- **Playlist**:
+  - Membuat, membaca, memperbarui, dan menghapus playlist.
+  - Playlist bersifat private (hanya pemilik dapat mengelola dan melihatnya).
+- **Playlist Song Management**: Menambah dan menghapus lagu dari playlist.
+- **Collaboration**: Pemilik playlist dapat menambahkan pengguna lain sebagai kolaborator agar bisa ikut mengelola playlist.
+- **Activity Log**: Mencatat setiap aktivitas dalam playlist (misalnya menambahkan atau menghapus lagu), termasuk siapa yang melakukan aksi tersebut.
 
 ---
 
@@ -36,7 +43,7 @@ OpenMusic API adalah aplikasi backend untuk mengelola data lagu, dibangun menggu
 1. Clone repository:
 
 ```bash
-git clone https://github.com/username/openmusic-api.git
+git clone https://github.com/AnamSadat/openmusic-api.git
 cd openmusic-api
 ```
 
@@ -129,24 +136,37 @@ uuidgen
 ```bash
 npm run start
 # or
-npm run dev
+npm run start:dev
 ```
 
 Server berjalan di: http://localhost:5000
 
 ## 📌 Endpoint Utama
 
-| Method | Endpoint     | Deskripsi                        |
-| ------ | ------------ | -------------------------------- |
-| GET    | /albums/{id} | Ambil albums berdasarkan id      |
-| POST   | /albums      | Tambah album baru                |
-| PUT    | /albums/{id} | Update data album                |
-| DELETE | /albums/{id} | Hapus album                      |
-| GET    | /songs       | Ambil semua lagu                 |
-| GET    | /songs/{id}  | Ambil detail lagu berdasarkan id |
-| POST   | /songs       | Tambah lagu baru                 |
-| PUT    | /songs/{id}  | Update data lagu                 |
-| DELETE | /songs/{id}  | Hapus lagu                       |
+| Method | Endpoint                           | Deskripsi                                                                |
+| ------ | ---------------------------------- | ------------------------------------------------------------------------ |
+| GET    | /albums/{id}                       | Ambil albums berdasarkan id                                              |
+| POST   | /albums                            | Tambah album baru                                                        |
+| PUT    | /albums/{id}                       | Update data album                                                        |
+| DELETE | /albums/{id}                       | Hapus album                                                              |
+| GET    | /songs                             | Ambil semua lagu                                                         |
+| GET    | /songs/{id}                        | Ambil detail lagu berdasarkan id                                         |
+| POST   | /songs                             | Tambah lagu baru                                                         |
+| PUT    | /songs/{id}                        | Update data lagu                                                         |
+| DELETE | /songs/{id}                        | Hapus lagu                                                               |
+| POST   | /users                             | Registrasi user baru                                                     |
+| POST   | /authentications                   | Login user, menghasilkan access token & refresh token                    |
+| PUT    | /authentications                   | Refresh access token menggunakan refresh token                           |
+| DELETE | /authentications                   | Logout user, hapus refresh token dari database                           |
+| POST   | /playlists                         | Buat playlist baru (private, milik user)                                 |
+| GET    | /playlists                         | Ambil semua playlist milik user                                          |
+| DELETE | /playlists/{id}                    | Hapus playlist milik user                                                |
+| POST   | /playlists/{playlistId}/songs      | Tambahkan lagu ke playlist                                               |
+| GET    | /playlists/{playlistId}/songs      | Ambil semua lagu dalam playlist                                          |
+| DELETE | /playlists/{playlistId}/songs      | Hapus lagu dari playlist                                                 |
+| POST   | /collaborations                    | Tambahkan user lain sebagai kolaborator pada playlist                    |
+| DELETE | /collaborations                    | Hapus kolaborator dari playlist                                          |
+| GET    | /playlists/{playlistId}/activities | Ambil riwayat aktivitas playlist (add/delete lagu oleh user/kolaborator) |
 
 ## ✅ Testing
 
@@ -155,6 +175,8 @@ Gunakan Postman untuk menguji API.
 Pastikan header: Content-Type: application/json
 
 Test semua endpoint dengan validasi data sesuai requirement.
+
+[Postman Test bisa akses disini](https://github.com/AnamSadat/project-openmusic-api-v1/blob/main/postman/postman_cli_script.md)
 
 ## 📂 Struktur Proyek
 
@@ -165,16 +187,19 @@ openmusic-api/
 ├── src                 # Folder utama kode sumber aplikasi
 │   ├── api             # Route & handler Hapi untuk endpoint API
 │   ├── exceptions      # Kelas custom error handling
+│   ├── scripts         # Script utilitas, misal tree.js
 │   ├── services        # Logic bisnis aplikasi (interaksi DB)
+│   ├── tokenize        # Modul untuk JWT / autentikasi
 │   ├── validator       # Validasi data input menggunakan Joi
 │   └── server.js       # Entry point aplikasi, konfigurasi Hapi server
 ├── .env                # Environment variables untuk konfigurasi lokal
 ├── .env.example        # Contoh format file .env
-├── .eslintrc.json      # Konfigurasi ESLint untuk menjaga kualitas kode
+├── .eslintrc.json      # Konfigurasi ESLint
 ├── .gitignore          # File untuk mengecualikan file/folder dari Git
-├── .prettierrc         # Konfigurasi Prettier untuk format kode
-├── package-lock.json   # Lock file npm, mencatat versi pasti dependensi
-├── package.json        # Metadata proyek, dependensi, script npm
-└── README.md           # Dokumentasi proyek, cara setup dan penggunaan
+├── .prettierrc         # Konfigurasi Prettier
+├── package-lock.json   # Lock file npm
+├── package.json        # Metadata proyek & dependensi
+└── README.md           # Dokumentasi proyek, cara setup & penggunaan
+
 
 ```
