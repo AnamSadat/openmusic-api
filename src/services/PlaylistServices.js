@@ -44,8 +44,6 @@ class PlaylistServices {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) throw new NotFoundError('Playlist tidak ditemukan');
-
     let filteredPlaylists = result.rows;
 
     filteredPlaylists = filteredPlaylists.slice(0, 2);
