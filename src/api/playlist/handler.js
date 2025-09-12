@@ -103,7 +103,7 @@ class PlaylistHandler {
     console.log('🚀 ~ PlaylistHandler ~ deleteSongByIdPlaylist ~ playlistId:', id);
     console.log('Sebelum validate');
 
-    await this._playlistService.verifyPlaylistOwner(id, credentials);
+    await this._playlistService.verifyPlaylistAccess(id, credentials);
     console.log('sesudah validate');
 
     await this._playlistService.deleteSongByIdPlaylist(songId, credentials, id);

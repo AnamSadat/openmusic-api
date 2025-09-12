@@ -118,12 +118,12 @@ class PlaylistServices {
     if (!id) throw new InvariantError('Id is required');
     if (!credentials) throw new AuthError('Credentials is no exist');
 
-    await this.verifyPlaylistOwner(id, credentials);
+    await this.verifyPlaylistAccess(id, credentials);
 
     const query = {
       text: `
       SELECT playlists.id, playlists.name, users.username,
-             songs.id AS song_id, songs.title, songs.performer
+            songs.id AS song_id, songs.title, songs.performer
       FROM playlists
       JOIN users ON users.id = playlists.owner
       LEFT JOIN playlist_songs ON playlist_songs.playlist_id = playlists.id
@@ -171,6 +171,27 @@ class PlaylistServices {
 
     if (!result.rows.length) {
       console.log('🚀 ~ PlaylistServices ~ deleteSongByIdPlaylist ~ tidak ada yang dihapus');
+    }
+  }
+
+  async verifyPlaylistAccess(playlistId, userId) {
+    try {
+      // coba dulu cek owner
+      await this.verifyPlaylistOwner(playlistId, userId);
+    } catch (error) {
+      if (error instanceof ForbiddenError) {
+        // kalau bukan owner, cek collaborator
+        const result = await this._pool.query({
+          text: 'SELECT * FROM collaborations WHERE playlist_id = $1 AND user_id = $2',
+          values: [playlistId, userId],
+        });
+
+        if (!result.rows.length) {
+          throw new ForbiddenError('Anda tidak berhak mengakses resource ini');
+        }
+      } else {
+        throw error; // kalau error lain, lempar ulang
+      }
     }
   }
 }
