@@ -2,8 +2,9 @@ import autoBind from 'auto-bind';
 import InvariantError from '../../exceptions/InvariantError.js';
 
 class PlaylistHandler {
-  constructor(service, validator) {
-    this._service = service;
+  constructor(playlistService, songService, validator) {
+    this._playlistService = playlistService;
+    this._songService = songService;
     this._validator = validator;
 
     autoBind(this);
@@ -13,10 +14,11 @@ class PlaylistHandler {
     this._validator.validatePlaylistPayload(request.payload);
 
     if (!request.payload) throw new InvariantError('error');
+
     const { name } = request.payload;
     const { id: credentials } = request.auth.credentials;
 
-    const playlistId = await this._service.addPlaylist(name, credentials);
+    const playlistId = await this._playlistService.addPlaylist(name, credentials);
 
     const response = h
       .response({
@@ -32,7 +34,7 @@ class PlaylistHandler {
 
   async getAllPlaylistHandler(request, h) {
     const credentials = await request.auth.credentials;
-    const playlists = await this._service.getPlaylist(credentials);
+    const playlists = await this._playlistService.getPlaylist(credentials);
 
     const response = h
       .response({
@@ -53,12 +55,14 @@ class PlaylistHandler {
     const { id: playlistId } = request.params;
     const { id: credentials } = request.auth.credentials;
 
-    await this._service.addSongWithPlaylist(playlistId, songId, credentials);
+    await this._songService.getDetailSong(songId);
+    await this._playlistService.addSongWithPlaylist(playlistId, songId, credentials);
+    await this._playlistService.addActivity(playlistId, songId, credentials, 'add');
 
     const response = h
       .response({
         status: 'success',
-        message: 'Berhasil nambah song di playlist',
+        message: 'Song has been successfully added to the playlist',
       })
       .code(201);
 
@@ -67,13 +71,9 @@ class PlaylistHandler {
 
   async getSongByIdPlaylistHandler(request, h) {
     const { id: credentials } = request.auth.credentials;
-    console.log('🚀 ~ PlaylistHandler ~ getSongByIdPlaylist ~ credentials:', credentials);
     const { id } = request.params;
-    console.log('🚀 ~ PlaylistHandler ~ getSongByIdPlaylist ~ playlistJhon:', id);
-    console.log('setelah destructure');
 
-    const playlist = await this._service.getSongByIdPlaylist(id, credentials);
-    console.log('setelah playlist');
+    const playlist = await this._playlistService.getSongByIdPlaylist(id, credentials);
 
     const response = h
       .response({
@@ -91,23 +91,17 @@ class PlaylistHandler {
     this._validator.validateSongPlaylistPayload(request.payload);
 
     const { id: credentials } = request.auth.credentials;
-    console.log('🚀 ~ PlaylistHandler ~ deleteSongByIdPlaylist ~ credentials:', credentials);
     const { songId } = request.payload;
-    console.log('🚀 ~ PlaylistHandler ~ deleteSongByIdPlaylist ~ songId:', songId);
     const { id } = request.params;
-    console.log('🚀 ~ PlaylistHandler ~ deleteSongByIdPlaylist ~ playlistId:', id);
-    console.log('Sebelum validate');
 
-    await this._service.verifyPlaylistOwner(id, credentials);
-    console.log('sesudah validate');
-
-    await this._service.deleteSongByIdPlaylist(songId, credentials, id);
-    console.log('sesudah delete');
+    await this._playlistService.verifyPlaylistAccess(id, credentials);
+    await this._playlistService.deleteSongByIdPlaylist(songId, credentials, id);
+    await this._playlistService.addActivity(id, songId, credentials, 'delete');
 
     const response = h
       .response({
         status: 'success',
-        message: 'Berhasil dihapus',
+        message: 'Song has been successfully removed from the playlist',
       })
       .code(200);
 
@@ -118,13 +112,33 @@ class PlaylistHandler {
     const { id } = request.params;
     const { id: credentials } = request.auth.credentials;
 
-    await this._service.verifyPlaylistOwner(id, credentials);
-    await this._service.deletePlaylist(id);
+    await this._playlistService.verifyPlaylistOwner(id, credentials);
+    await this._playlistService.deletePlaylist(id);
 
     const response = h
       .response({
         status: 'success',
-        message: 'Berhasil dihapus',
+        message: 'Playlist has been successfully deleted',
+      })
+      .code(200);
+
+    return response;
+  }
+
+  async getPlaylistByIdWithActivityHandler(request, h) {
+    const { id } = request.params;
+    const { id: credentials } = request.auth.credentials;
+
+    await this._playlistService.verifyPlaylistAccess(id, credentials);
+    const activities = await this._playlistService.getPlaylistByIdWithActivity(id);
+
+    const response = h
+      .response({
+        status: 'success',
+        data: {
+          playlistId: id,
+          activities,
+        },
       })
       .code(200);
 

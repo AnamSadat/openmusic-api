@@ -157,7 +157,8 @@ const init = async () => {
     {
       plugin: playlist,
       options: {
-        service: playlistService,
+        playlistService,
+        songService,
         validator: PlaylistValidator,
       },
     },

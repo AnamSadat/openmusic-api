@@ -9,6 +9,8 @@ class AlbumServices {
   }
 
   async getAlbums(id) {
+    if (!id) throw new InvariantError('Album ID is required');
+
     const queryAlbum = {
       text: 'SELECT * FROM albums WHERE id = $1',
       values: [id],
@@ -22,9 +24,7 @@ class AlbumServices {
     const resultAlbum = await this._pool.query(queryAlbum);
     const resultSong = await this._pool.query(querySong);
 
-    if (!resultAlbum.rowCount) {
-      throw new NotFoundError('Album tidak ditemukan');
-    }
+    if (!resultAlbum.rowCount) throw new NotFoundError('Album not found');
 
     const album = resultAlbum.rows[0];
     album.songs = resultSong.rows;
@@ -33,7 +33,7 @@ class AlbumServices {
   }
 
   async addAlbums({ name, year }) {
-    const id = nanoid(16);
+    const id = `album-${nanoid(16)}`;
     const query = {
       text: 'INSERT INTO albums VALUES($1, $2, $3) RETURNING id',
       values: [id, name, year],
@@ -41,9 +41,7 @@ class AlbumServices {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows[0].id) {
-      throw new InvariantError('Gagal menambahkan album');
-    }
+    if (!result.rows[0].id) throw new InvariantError('Failed to add album');
 
     return result.rows[0].id;
   }
@@ -56,14 +54,14 @@ class AlbumServices {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
-      throw new NotFoundError('Gagal memperbarui album. ID tidak ditemukan');
-    }
+    if (!result.rows.length) throw new NotFoundError('Album not found, failed to update');
 
     return result;
   }
 
   async deleteAlbums(id) {
+    if (!id) throw new InvariantError('Album ID is required');
+
     const query = {
       text: 'DELETE FROM albums WHERE id = $1 RETURNING id',
       values: [id],
@@ -71,9 +69,7 @@ class AlbumServices {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
-      throw new NotFoundError('Gagal menghapus album. ID tidak ditemukan');
-    }
+    if (!result.rows.length) throw new NotFoundError('Album not found, failed to delete');
   }
 }
 

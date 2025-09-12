@@ -9,7 +9,7 @@ class SongServices {
   }
 
   async addSong({ title, year, performer, genre, duration, albumId }) {
-    const id = nanoid(16);
+    const id = `song-${nanoid(16)}`;
     const query = {
       text: 'INSERT INTO songs VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id',
       values: [id, title, year, performer, genre, duration, albumId],
@@ -17,9 +17,7 @@ class SongServices {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows[0].id) {
-      throw new InvariantError('Gagal menambahkan lagu');
-    }
+    if (!result.rows[0].id) throw new InvariantError('Failed to add the song');
 
     return result.rows[0].id;
   }
@@ -46,9 +44,7 @@ class SongServices {
     const query = { text, values };
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
-      throw new InvariantError('Tidak ada lagu ditemukan');
-    }
+    if (!result.rows.length) throw new InvariantError('No songs found matching the criteria');
 
     let filteredSongs = result.rows;
 
@@ -79,9 +75,7 @@ class SongServices {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
-      throw new NotFoundError('Gagal memperbarui lagu. ID tidak ditemukan');
-    }
+    if (!result.rows.length) throw new NotFoundError('Song not found, failed to update');
 
     return result;
   }
@@ -94,9 +88,7 @@ class SongServices {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
-      throw new NotFoundError('Gagal menghapus music. Id tidak ditemukan');
-    }
+    if (!result.rows.length) throw new NotFoundError('Song not found, could not delete');
   }
 
   async getDetailSong(id) {
@@ -107,9 +99,7 @@ class SongServices {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
-      throw new NotFoundError('Lagu dengan ID tersebut tidak ditemukan');
-    }
+    if (!result.rows.length) throw new NotFoundError('Song with the given ID was not found');
 
     return result.rows[0];
   }

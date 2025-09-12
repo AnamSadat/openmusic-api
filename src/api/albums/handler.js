@@ -48,7 +48,7 @@ class AlbumsHandler {
 
     const response = h.response({
       status: 'success',
-      message: `Album dengan id ${id} berhasil diperbarui`,
+      message: `Album with ID ${id} has been successfully updated`,
     });
 
     response.code(200);
@@ -62,7 +62,7 @@ class AlbumsHandler {
 
     const response = h.response({
       status: 'success',
-      message: `Album dengan id ${id} berhasil dihapus`,
+      message: `Album with ID ${id} has been successfully deleted`,
     });
 
     response.code(200);
