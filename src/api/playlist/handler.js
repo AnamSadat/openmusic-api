@@ -2,8 +2,9 @@ import autoBind from 'auto-bind';
 import InvariantError from '../../exceptions/InvariantError.js';
 
 class PlaylistHandler {
-  constructor(service, validator) {
-    this._service = service;
+  constructor(playlistService, songService, validator) {
+    this._playlistService = playlistService;
+    this._songService = songService;
     this._validator = validator;
 
     autoBind(this);
@@ -16,7 +17,7 @@ class PlaylistHandler {
     const { name } = request.payload;
     const { id: credentials } = request.auth.credentials;
 
-    const playlistId = await this._service.addPlaylist(name, credentials);
+    const playlistId = await this._playlistService.addPlaylist(name, credentials);
 
     const response = h
       .response({
@@ -32,7 +33,7 @@ class PlaylistHandler {
 
   async getAllPlaylistHandler(request, h) {
     const credentials = await request.auth.credentials;
-    const playlists = await this._service.getPlaylist(credentials);
+    const playlists = await this._playlistService.getPlaylist(credentials);
 
     const response = h
       .response({
@@ -50,10 +51,14 @@ class PlaylistHandler {
     this._validator.validateSongPlaylistPayload(request.payload);
 
     const { songId } = request.payload;
+    console.log('🚀 ~ PlaylistHandler ~ postPlaylistSongByIdHandler ~ songId:', songId);
     const { id: playlistId } = request.params;
+    console.log('🚀 ~ PlaylistHandler ~ postPlaylistSongByIdHandler ~ playlistId:', playlistId);
     const { id: credentials } = request.auth.credentials;
+    console.log('🚀 ~ PlaylistHandler ~ postPlaylistSongByIdHandler ~ credentials:', credentials);
 
-    await this._service.addSongWithPlaylist(playlistId, songId, credentials);
+    await this._songService.getDetailSong(songId);
+    await this._playlistService.addSongWithPlaylist(playlistId, songId, credentials);
 
     const response = h
       .response({
@@ -72,7 +77,7 @@ class PlaylistHandler {
     console.log('🚀 ~ PlaylistHandler ~ getSongByIdPlaylist ~ playlistJhon:', id);
     console.log('setelah destructure');
 
-    const playlist = await this._service.getSongByIdPlaylist(id, credentials);
+    const playlist = await this._playlistService.getSongByIdPlaylist(id, credentials);
     console.log('setelah playlist');
 
     const response = h
@@ -98,10 +103,10 @@ class PlaylistHandler {
     console.log('🚀 ~ PlaylistHandler ~ deleteSongByIdPlaylist ~ playlistId:', id);
     console.log('Sebelum validate');
 
-    await this._service.verifyPlaylistOwner(id, credentials);
+    await this._playlistService.verifyPlaylistOwner(id, credentials);
     console.log('sesudah validate');
 
-    await this._service.deleteSongByIdPlaylist(songId, credentials, id);
+    await this._playlistService.deleteSongByIdPlaylist(songId, credentials, id);
     console.log('sesudah delete');
 
     const response = h
@@ -118,8 +123,8 @@ class PlaylistHandler {
     const { id } = request.params;
     const { id: credentials } = request.auth.credentials;
 
-    await this._service.verifyPlaylistOwner(id, credentials);
-    await this._service.deletePlaylist(id);
+    await this._playlistService.verifyPlaylistOwner(id, credentials);
+    await this._playlistService.deletePlaylist(id);
 
     const response = h
       .response({

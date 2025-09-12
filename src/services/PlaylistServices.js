@@ -28,9 +28,17 @@ class PlaylistServices {
   async getPlaylist(credentials) {
     const query = {
       text: `SELECT playlists.id, playlists.name, users.username
-         FROM playlists
-         JOIN users ON users.id = playlists.owner
-         WHERE playlists.owner = $1`,
+        FROM playlists
+        JOIN users ON users.id = playlists.owner
+        WHERE playlists.owner = $1
+
+        UNION
+
+        SELECT playlists.id, playlists.name, users.username
+        FROM collaborations
+        JOIN playlists ON collaborations.playlist_id = playlists.id
+        JOIN users ON users.id = playlists.owner
+        WHERE collaborations.user_id = $1;`,
       values: [credentials.id],
     };
 
@@ -66,12 +74,18 @@ class PlaylistServices {
 
     if (!checkSongId.rows.length) throw new NotFoundError('dong id gk ada');
 
-    const checkPlaylistOwner = await this._pool.query({
-      text: 'SELECT * FROM playlists WHERE id = $1 AND owner = $2',
+    const checkAccess = await this._pool.query({
+      text: `
+    SELECT 1 FROM playlists 
+    WHERE id = $1 AND owner = $2
+    UNION
+    SELECT 1 FROM collaborations 
+    WHERE playlist_id = $1 AND user_id = $2
+  `,
       values: [playlistId, userId],
     });
 
-    if (!checkPlaylistOwner.rows.length) throw new ForbiddenError('Playlist tidak dimiliki user ini');
+    if (!checkAccess.rows.length) throw new ForbiddenError('Anda tidak punya akses ke playlist ini');
 
     const id = nanoid(16);
     const query = {
