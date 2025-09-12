@@ -10,7 +10,8 @@
     "start:dev": "nodemon ./src/server.js",
     "lint": "eslint ./src",
     "migrate": "node-pg-migrate",
-    "generate:ssl": "node ./src/scripts/generate-ssl.js"
+    "generate:ssl": "node ./src/scripts/generate-ssl.js",
+    "generate:tree": "node ./src/scripts/generate-tree.js"
   },
   "keywords": [],
   "author": "Anam Sadat",
