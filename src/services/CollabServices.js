@@ -41,7 +41,22 @@ class CollabServices {
     }
   }
 
-  // async deleteCollaborations(playlistId, songId, credentials) {}
+  async deleteCollab(playlistId, userId) {
+    if (!playlistId) throw new InvariantError('ID playlist is required');
+    if (!userId) throw new InvariantError('ID user is required');
+    // if (!credentials) throw new InvariantError('credentials is required');
+
+    const query = {
+      text: 'DELETE FROM collaborations WHERE playlist_id = $1 AND user_id = $2 RETURNING id',
+      values: [playlistId, userId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) {
+      console.log('🚀 ~ CollabServices ~ deleteCollaborations ~ tidak ada yang dihapus');
+    }
+  }
 }
 
 export default CollabServices;

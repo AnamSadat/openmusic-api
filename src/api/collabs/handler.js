@@ -34,6 +34,29 @@ class CollabHandler {
 
     return response;
   }
+
+  async deleteCollabHandler(request, h) {
+    this._validator.validateCollabPayload(request.payload);
+
+    const { playlistId, userId } = request.payload;
+    const { id: credentials } = request.auth.credentials;
+
+    console.log('🚀 ~ CollabHandler ~ deleteCollabHandler ~ userId:', userId);
+    console.log('🚀 ~ CollabHandler ~ deleteCollabHandler ~ playlistId:', playlistId);
+    console.log('🚀 ~ CollabHandler ~ deleteCollabHandler ~ credentials:', credentials);
+
+    await this._playlistService.verifyPlaylistOwner(playlistId, credentials);
+    await this._collabService.deleteCollab(playlistId, userId);
+
+    const response = h
+      .response({
+        status: 'success',
+        message: 'Collaborations berhasil dihapus',
+      })
+      .code(200);
+
+    return response;
+  }
 }
 
 export default CollabHandler;

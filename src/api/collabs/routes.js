@@ -7,6 +7,14 @@ const routes = (handler) => [
       auth: 'openmusic_jwt',
     },
   },
+  {
+    method: 'DELETE',
+    path: '/collaborations',
+    handler: handler.deleteCollabHandler,
+    options: {
+      auth: 'openmusic_jwt',
+    },
+  },
 ];
 
 export default routes;
