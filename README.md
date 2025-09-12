@@ -63,6 +63,65 @@ PGHOST=localhost
 PGDATABASE=openmusic
 PGPORT=5432
 PORT=5000
+
+# authentication
+ACCESS_TOKEN_KEY=
+REFRESH_TOKEN_KEY=
+ACCESS_TOKEN_AGE=1800
+```
+
+Kamu bisa generate ssl untuk `ACCESS_TOKEN_KEY` dan `REFRESH_TOKEN_KEY`:
+
+```bash
+# script
+npm run generate:ssl
+
+# or
+
+# hex string (default, panjang 128 karakter karena 64 byte)
+node -e 'console.log(require("crypto").randomBytes(64).toString("hex"))'
+
+# base64 string (lebih pendek, cocok buat secret)
+node -e 'console.log(require("crypto").randomBytes(64).toString("base64"))'
+
+# url-safe string (biar bisa dipakai di URL/JWT dsb.)
+node -e 'console.log(require("crypto").randomBytes(64).toString("base64url"))'
+
+# pakai crypto.randomUUID() (UUID v4)
+node -e 'console.log(require("crypto").randomUUID())'
+
+# pake crypto.createHash (misalnya SHA256 dari randomBytes)
+node -e 'console.log(require("crypto").createHash("sha256").update(require("crypto").randomBytes(64)).digest("hex"))'
+
+# secret yang aman buat JWT atau session
+node -e 'console.log(require("crypto").randomBytes(32).toString("hex"))'
+
+# or
+
+# openssl (hex / base64)
+openssl rand -hex 64
+openssl rand -base64 64
+
+# or
+
+# Linux / Mac: urandom + xxd
+head -c 64 /dev/urandom | xxd -p -c 64
+
+# Linux / Mac: urandom + base64
+head -c 64 /dev/urandom | base64
+
+# or
+
+# uuid (kalau cukup unik aja)
+uuidgen
+
+# or
+
+# pwsh: native GUID
+[guid]::NewGuid()
+
+# pwsh: base64 random
+[Convert]::ToBase64String((1..64 | ForEach-Object {Get-Random -Maximum 256}))
 ```
 
 4. Jalankan server:
