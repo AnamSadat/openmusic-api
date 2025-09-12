@@ -59,6 +59,7 @@ class PlaylistHandler {
 
     await this._songService.getDetailSong(songId);
     await this._playlistService.addSongWithPlaylist(playlistId, songId, credentials);
+    await this._playlistService.addActivity(playlistId, songId, credentials, 'add');
 
     const response = h
       .response({
@@ -106,6 +107,8 @@ class PlaylistHandler {
     await this._playlistService.verifyPlaylistAccess(id, credentials);
     console.log('sesudah validate');
 
+    await this._playlistService.addActivity(id, songId, credentials, 'delete');
+
     await this._playlistService.deleteSongByIdPlaylist(songId, credentials, id);
     console.log('sesudah delete');
 
@@ -130,6 +133,27 @@ class PlaylistHandler {
       .response({
         status: 'success',
         message: 'Berhasil dihapus',
+      })
+      .code(200);
+
+    return response;
+  }
+
+  async getPlaylistByIdWithActivityHandler(request, h) {
+    const { id } = request.params;
+    const { id: credentials } = request.auth.credentials;
+
+    await this._playlistService.verifyPlaylistAccess(id, credentials);
+
+    const activities = await this._playlistService.getPlaylistByIdWithActivity(id);
+
+    const response = h
+      .response({
+        status: 'success',
+        data: {
+          playlistId: id,
+          activities,
+        },
       })
       .code(200);
 

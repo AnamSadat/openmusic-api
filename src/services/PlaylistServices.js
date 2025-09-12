@@ -174,11 +174,9 @@ class PlaylistServices {
 
   async verifyPlaylistAccess(playlistId, userId) {
     try {
-      // coba dulu cek owner
       await this.verifyPlaylistOwner(playlistId, userId);
     } catch (error) {
       if (error instanceof ForbiddenError) {
-        // kalau bukan owner, cek collaborator
         const result = await this._pool.query({
           text: 'SELECT * FROM collaborations WHERE playlist_id = $1 AND user_id = $2',
           values: [playlistId, userId],
@@ -188,9 +186,55 @@ class PlaylistServices {
           throw new ForbiddenError('Anda tidak berhak mengakses resource ini');
         }
       } else {
-        throw error; // kalau error lain, lempar ulang
+        throw error;
       }
     }
+  }
+
+  async addActivity(playlistId, songId, credentials, action) {
+    if (!playlistId) throw new InvariantError('ID playlist is required');
+    if (!songId) throw new InvariantError('ID song is required');
+    if (!credentials) throw new InvariantError('Credentials is required');
+    if (!action) throw new InvariantError('Action is required');
+
+    console.log('🚀 ~ PlaylistServices ~ addActivity ~ playlistId:', playlistId);
+    console.log('🚀 ~ PlaylistServices ~ addActivity ~ songId:', songId);
+    console.log('🚀 ~ PlaylistServices ~ addActivity ~ credentials:', credentials);
+    console.log('🚀 ~ PlaylistServices ~ addActivity ~ action:', action);
+
+    const id = `activity-${nanoid(16)}`;
+    const time = new Date().toISOString();
+
+    const query = {
+      text: 'INSERT INTO playlist_song_activities VALUES($1, $2, $3, $4, $5, $6) RETURNING id',
+      values: [id, playlistId, songId, credentials, action, time],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) throw new InvariantError('Gagal menambahkan activity');
+  }
+
+  async getPlaylistByIdWithActivity(playlistId) {
+    if (!playlistId) throw new InvariantError('ID playlist is required');
+
+    const query = {
+      text: `SELECT users.username, songs.title, playlist_song_activities.action, playlist_song_activities.time
+      FROM playlist_song_activities
+      INNER JOIN songs ON playlist_song_activities.song_id = songs.id
+      INNER JOIN users ON playlist_song_activities.user_id = users.id
+      WHERE playlist_id = $1
+      ORDER BY playlist_song_activities.time ASC`,
+      values: [playlistId],
+    };
+
+    const result = await this._pool.query(query);
+    const activities = result.rows.slice(-3);
+
+    console.log('🚀 ~ PlaylistServices ~ getPlaylistByIdWithActivity ~ result:', result.rows);
+    console.log('🚀 ~ PlaylistServices ~ getPlaylistByIdWithActivity ~ activities:', activities);
+
+    return activities;
   }
 }
 
