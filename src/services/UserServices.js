@@ -23,7 +23,7 @@ class UserService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) throw new InvariantError('User gagal ditambahkan');
+    if (!result.rows.length) throw new InvariantError('Failed to add user');
 
     return result.rows[0].id;
   }
@@ -36,10 +36,12 @@ class UserService {
 
     const result = await this._pool.query(query);
 
-    if (result.rows.length > 0) throw new InvariantError('Gagal menambahkan user. Username sudah digunakan');
+    if (result.rows.length > 0) throw new InvariantError('Username is already taken. Please choose another one');
   }
 
   async getUserById(id) {
+    if (!id) throw new InvariantError('User ID is required');
+
     const query = {
       text: 'SELECT id, username, fullName FROM users WHERE id = $1',
       values: [id],
@@ -47,7 +49,7 @@ class UserService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) throw new NotFoundError('User tidak ditemukan');
+    if (!result.rows.length) throw new NotFoundError('User not found');
 
     return result.rows[0].id;
   }
@@ -60,13 +62,12 @@ class UserService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) throw new AuthError('Kredensial yang anda berikan salah');
+    if (!result.rows.length) throw new AuthError('Invalid username or password');
 
     const { id, password: hashedPassword } = result.rows[0];
-
     const match = await bcrypt.compare(password, hashedPassword);
 
-    if (!match) throw new AuthError('Password salah atau tidak cocok');
+    if (!match) throw new AuthError('Invalid username or password');
 
     return id;
   }

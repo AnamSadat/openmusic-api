@@ -7,6 +7,8 @@ class AuthServices {
   }
 
   async addRefreshToken(refreshToken) {
+    if (!refreshToken) throw new InvariantError('Refresh token is required');
+
     const query = {
       text: 'INSERT INTO auth VALUES($1)',
       values: [refreshToken],
@@ -16,6 +18,8 @@ class AuthServices {
   }
 
   async verifyRefreshToken(token) {
+    if (!token) throw new InvariantError('Refresh token is required');
+
     const query = {
       text: 'SELECT "refreshToken" FROM auth WHERE "refreshToken" = $1',
       values: [token],
@@ -23,12 +27,12 @@ class AuthServices {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
-      throw new InvariantError('Refresh token tidak valid');
-    }
+    if (!result.rows.length) throw new InvariantError('Invalid refresh token');
   }
 
   async deleteRefreshToken(token) {
+    if (!token) throw new InvariantError('Refresh token is required');
+
     const query = {
       text: 'DELETE FROM auth WHERE "refreshToken" = $1',
       values: [token],

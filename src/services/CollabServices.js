@@ -7,15 +7,10 @@ class CollabServices {
     this._pool = new Pool();
   }
 
-  async addCollab(playlistId, userId, credentials) {
-    const id = `collab-${nanoid(16)}`;
-
-    if (!playlistId) throw new InvariantError('ID Playlist is required');
-    if (!userId) throw new InvariantError('ID user is required');
-    if (!credentials) throw new InvariantError('Credentials is required');
-
+  async addCollab(playlistId, userId) {
     await this.verifyCollab(userId, playlistId);
 
+    const id = `collab-${nanoid(16)}`;
     const query = {
       text: 'INSERT INTO collaborations (id, playlist_id, user_id) VALUES($1, $2, $3) RETURNING id',
       values: [id, playlistId, userId],
@@ -23,7 +18,7 @@ class CollabServices {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) throw new InvariantError('Gagal menambahkan collaborations');
+    if (!result.rows.length) throw new InvariantError('Failed to add collaboration');
 
     return result.rows[0].id;
   }
@@ -36,15 +31,11 @@ class CollabServices {
 
     const result = await this._pool.query(query);
 
-    if (result.rows.length) {
-      throw new InvariantError('User sudah jadi kolaborator');
-    }
+    if (result.rows.length) throw new InvariantError('User is already a collaborator');
   }
 
   async deleteCollab(playlistId, userId) {
-    if (!playlistId) throw new InvariantError('ID playlist is required');
-    if (!userId) throw new InvariantError('ID user is required');
-    // if (!credentials) throw new InvariantError('credentials is required');
+    if (!playlistId || !userId) throw new InvariantError('Both playlist ID and user ID are required');
 
     const query = {
       text: 'DELETE FROM collaborations WHERE playlist_id = $1 AND user_id = $2 RETURNING id',
@@ -53,9 +44,7 @@ class CollabServices {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
-      console.log('🚀 ~ CollabServices ~ deleteCollaborations ~ tidak ada yang dihapus');
-    }
+    if (!result.rows.length) console.log('No collaboration found to delete');
   }
 }
 
