@@ -1,5 +1,4 @@
 import Hapi from '@hapi/hapi';
-import dotenv from 'dotenv';
 import Jwt from '@hapi/jwt';
 
 // exception error
@@ -12,6 +11,7 @@ import users from './api/users/index.js';
 import auth from './api/auth/index.js';
 import playlist from './api/playlist/index.js';
 import collabs from './api/collabs/index.js';
+import _exports from './api/exports/index.js';
 
 // validator
 import AlbumsValidator from './validator/albums/index.js';
@@ -20,6 +20,7 @@ import UsersValidator from './validator/users/index.js';
 import AuthValidator from './validator/auth/index.js';
 import PlaylistValidator from './validator/playlist/index.js';
 import CollabValidator from './validator/collabs/index.js';
+import ExportValidator from './validator/exports/index.js';
 
 // service
 import AlbumServices from './services/postgres/AlbumServices.js';
@@ -28,11 +29,11 @@ import UserServices from './services/postgres/UserServices.js';
 import AuthServices from './services/postgres/AuthServices.js';
 import PlaylistServices from './services/postgres/PlaylistServices.js';
 import CollabServices from './services/postgres/CollabServices.js';
+import ProdecureServices from './services/rabbitmq/ProducerServices.js';
 
 // token
 import TokenManager from './tokenize/TokenManager.js';
-
-dotenv.config();
+import config from './utils/config.js';
 
 const init = async () => {
   const albumService = new AlbumServices();
@@ -43,8 +44,8 @@ const init = async () => {
   const collabServices = new CollabServices();
 
   const server = Hapi.server({
-    port: process.env.PORT,
-    host: process.env.HOST,
+    port: config.app.port,
+    host: config.app.host,
     routes: {
       cors: {
         origin: ['*'],
@@ -108,12 +109,12 @@ const init = async () => {
   ]);
 
   server.auth.strategy('openmusic_jwt', 'jwt', {
-    keys: process.env.ACCESS_TOKEN_KEY,
+    keys: config.auth.accessTokenKey,
     verify: {
       aud: false,
       iss: false,
       sub: false,
-      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+      maxAgeSec: config.auth.accessTokenAge,
     },
     validate: (artifacts) => ({
       isValid: true,
@@ -169,6 +170,14 @@ const init = async () => {
         playlistService,
         usersService,
         validator: CollabValidator,
+      },
+    },
+    {
+      plugin: _exports,
+      options: {
+        exportService: ProdecureServices,
+        playlistService,
+        validator: ExportValidator,
       },
     },
   ]);
