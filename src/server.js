@@ -22,12 +22,12 @@ import PlaylistValidator from './validator/playlist/index.js';
 import CollabValidator from './validator/collabs/index.js';
 
 // service
-import AlbumServices from './services/AlbumServices.js';
-import SongServices from './services/SongServices.js';
-import UserServices from './services/UserServices.js';
-import AuthServices from './services/AuthServices.js';
-import PlaylistServices from './services/PlaylistServices.js';
-import CollabServices from './services/CollabServices.js';
+import AlbumServices from './services/postgres/AlbumServices.js';
+import SongServices from './services/postgres/SongServices.js';
+import UserServices from './services/postgres/UserServices.js';
+import AuthServices from './services/postgres/AuthServices.js';
+import PlaylistServices from './services/postgres/PlaylistServices.js';
+import CollabServices from './services/postgres/CollabServices.js';
 
 // token
 import TokenManager from './tokenize/TokenManager.js';
