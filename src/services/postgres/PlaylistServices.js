@@ -1,9 +1,9 @@
 import { nanoid } from 'nanoid';
 import { Pool } from 'pg';
-import InvariantError from '../exceptions/InvariantError.js';
-import NotFoundError from '../exceptions/NotFoundError.js';
-import ForbiddenError from '../exceptions/ForbiddenError.js';
-import AuthError from '../exceptions/AuthError.js';
+import InvariantError from '../../exceptions/InvariantError.js';
+import NotFoundError from '../../exceptions/NotFoundError.js';
+import ForbiddenError from '../../exceptions/ForbiddenError.js';
+import AuthError from '../../exceptions/AuthError.js';
 
 class PlaylistServices {
   constructor() {
