@@ -1,5 +1,8 @@
 import Hapi from '@hapi/hapi';
 import Jwt from '@hapi/jwt';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import Inert from '@hapi/inert';
 
 // exception error
 import ClientError from './exceptions/ClientError.js';
@@ -34,6 +37,8 @@ import ProdecureServices from './services/rabbitmq/ProducerServices.js';
 // token
 import TokenManager from './tokenize/TokenManager.js';
 import config from './utils/config.js';
+import StorageService from './services/storage/StorageLocalServices.js';
+import UploadsValidator from './validator/uploads/index.js';
 
 const init = async () => {
   const albumService = new AlbumServices();
@@ -42,6 +47,8 @@ const init = async () => {
   const authService = new AuthServices();
   const playlistService = new PlaylistServices();
   const collabServices = new CollabServices();
+  const storageService = new StorageService(`${dirname(fileURLToPath(import.meta.url))}/files/images`);
+  // console.log(`${dirname(fileURLToPath(import.meta.url))}/files/images`);
 
   const server = Hapi.server({
     port: config.app.port,
@@ -54,6 +61,9 @@ const init = async () => {
   });
 
   server.ext('onPreResponse', (request, h) => {
+    console.log('Incoming Content-Type:', request.headers['content-type']);
+    console.log('Incoming Payload:', request.payload);
+
     const { response } = request;
 
     if (response instanceof ClientError) {
@@ -106,6 +116,9 @@ const init = async () => {
     {
       plugin: Jwt,
     },
+    {
+      plugin: Inert,
+    },
   ]);
 
   server.auth.strategy('openmusic_jwt', 'jwt', {
@@ -128,8 +141,10 @@ const init = async () => {
     {
       plugin: albums,
       options: {
-        service: albumService,
-        validator: AlbumsValidator,
+        albumService,
+        storageService,
+        validatorAlbums: AlbumsValidator,
+        validatorStorage: UploadsValidator,
       },
     },
     {
