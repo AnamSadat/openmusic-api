@@ -61,9 +61,6 @@ const init = async () => {
   });
 
   server.ext('onPreResponse', (request, h) => {
-    console.log('Incoming Content-Type:', request.headers['content-type']);
-    console.log('Incoming Payload:', request.payload);
-
     const { response } = request;
 
     if (response instanceof ClientError) {
