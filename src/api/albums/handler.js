@@ -1,16 +1,19 @@
 import autoBind from 'auto-bind';
+import config from '../../utils/config.js';
 
 class AlbumsHandler {
-  constructor(service, validator) {
-    this._service = service;
-    this._validator = validator;
+  constructor(albumService, storageService, validatorAlbums, validatorStorage) {
+    this._albumService = albumService;
+    this._storageService = storageService;
+    this._validatorAlbums = validatorAlbums;
+    this._validatorStorage = validatorStorage;
 
     autoBind(this);
   }
 
   async getAlbumHandler(request, h) {
     const { id } = request.params;
-    const album = await this._service.getAlbums(id);
+    const album = await this._albumService.getAlbums(id);
 
     const response = h.response({
       status: 'success',
@@ -24,9 +27,9 @@ class AlbumsHandler {
   }
 
   async createAlbumHandler(request, h) {
-    this._validator.validateAlbumsPayload(request.payload);
+    this._validatorAlbums.validateAlbumsPayload(request.payload);
     const { name, year } = request.payload;
-    const albumId = await this._service.addAlbums({ name, year });
+    const albumId = await this._albumService.addAlbums({ name, year });
 
     const response = h.response({
       status: 'success',
@@ -40,11 +43,11 @@ class AlbumsHandler {
   }
 
   async updateAlbumHandler(request, h) {
-    this._validator.validateAlbumsPayload(request.payload);
+    this._validatorAlbums.validateAlbumsPayload(request.payload);
     const { id } = request.params;
     const { name, year } = request.payload;
 
-    await this._service.updateAlbums(id, { name, year });
+    await this._albumService.updateAlbums(id, { name, year });
 
     const response = h.response({
       status: 'success',
@@ -58,7 +61,7 @@ class AlbumsHandler {
   async deleteAlbumHandler(request, h) {
     const { id } = request.params;
 
-    await this._service.deleteAlbums(id);
+    await this._albumService.deleteAlbums(id);
 
     const response = h.response({
       status: 'success',
@@ -66,6 +69,28 @@ class AlbumsHandler {
     });
 
     response.code(200);
+    return response;
+  }
+
+  async addCoverAlbumHandler(request, h) {
+    const { id } = request.params;
+    const { cover } = request.payload;
+    console.log('sebelum validate');
+    this._validatorStorage.validateImageHeaders(cover.hapi.headers);
+    console.log('sesudah validate');
+
+    const filename = await this._storageService.writeFile(cover, cover.hapi);
+    const url = `http://${config.app.host}:${config.app.port}/upload/album/cover/${filename}`;
+
+    await this._storageService.updateCoverByIdAlbum(id, url);
+
+    const response = h
+      .response({
+        status: 'success',
+        message: 'Sampul berhasil diunggah',
+      })
+      .code(201);
+
     return response;
   }
 }

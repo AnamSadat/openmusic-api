@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
 import { Pool } from 'pg';
-import InvariantError from '../exceptions/InvariantError.js';
-import NotFoundError from '../exceptions/NotFoundError.js';
+import InvariantError from '../../exceptions/InvariantError.js';
+import NotFoundError from '../../exceptions/NotFoundError.js';
 
 class AlbumServices {
   constructor() {
@@ -70,6 +70,22 @@ class AlbumServices {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) throw new NotFoundError('Album not found, failed to delete');
+  }
+
+  async updateCoverByIdAlbum(albumId, path) {
+    if (!albumId) throw new InvariantError('Album ID is required');
+    if (!path) throw new InvariantError('Path is required');
+
+    const query = {
+      text: 'UPDATE albums SET coverUrl = $1 WHERE id = $2 RETURNING id',
+      values: [path, albumId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) throw new NotFoundError('Tidak ditemukan');
+
+    return result.rows[0].id;
   }
 }
 

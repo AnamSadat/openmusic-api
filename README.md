@@ -75,6 +75,12 @@ PORT=5000
 ACCESS_TOKEN_KEY=
 REFRESH_TOKEN_KEY=
 ACCESS_TOKEN_AGE=1800
+
+# rabbitmq
+RABBITMQ_SERVER=amqp://localhost
+
+# redis
+REDIS_SERVER=
 ```
 
 Kamu bisa generate ssl untuk `ACCESS_TOKEN_KEY` dan `REFRESH_TOKEN_KEY`:
