@@ -91,6 +91,55 @@ class AlbumsHandler {
 
     return response;
   }
+
+  async addLikeAlbumByIdHandler(request, h) {
+    const { id: credentials } = request.auth.credentials;
+    const { id } = request.params;
+
+    await this._albumService.addLikeAlbumById(id, credentials);
+
+    const response = h
+      .response({
+        status: 'success',
+        message: 'Berhasil like',
+      })
+      .code(201);
+
+    return response;
+  }
+
+  async deleteLikeAlbumByIdHandler(request, h) {
+    const { id } = request.params;
+    const { id: credentials } = request.auth.credentials;
+
+    await this._albumService.deleteLikeAlbumById(id, credentials);
+
+    const response = h
+      .response({
+        status: 'success',
+        message: 'Berhasil dihapus',
+      })
+      .code(200);
+
+    return response;
+  }
+
+  async getLikeAlbumByIdHandler(request, h) {
+    const { id } = request.params;
+
+    const likes = await this._albumService.getLikeAlbumById(id);
+
+    const response = h
+      .response({
+        status: 'success',
+        data: {
+          likes,
+        },
+      })
+      .code(200);
+
+    return response;
+  }
 }
 
 export default AlbumsHandler;
