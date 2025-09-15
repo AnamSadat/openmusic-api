@@ -10,7 +10,7 @@ export const shorthands = undefined;
  */
 export const up = (pgm) => {
   pgm.addColumn('albums', {
-    cover: {
+    coverUrl: {
       type: 'TEXT',
     },
   });
@@ -22,5 +22,5 @@ export const up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 export const down = (pgm) => {
-  pgm.dropColumn('albums', 'cover');
+  pgm.dropColumn('albums', 'coverUrl');
 };
