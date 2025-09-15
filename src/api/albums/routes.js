@@ -1,6 +1,3 @@
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-
 const routes = (handler) => [
   {
     method: 'GET',
@@ -37,10 +34,10 @@ const routes = (handler) => [
   },
   {
     method: 'GET',
-    path: '/albums/{id}/covers/{params}',
+    path: '/albums/covers/{param*}',
     handler: {
       directory: {
-        path: `${dirname(fileURLToPath(import.meta.url))}/files/images`,
+        path: `${process.cwd()}/uploads`,
       },
     },
   },

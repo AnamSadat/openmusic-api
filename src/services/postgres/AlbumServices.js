@@ -77,7 +77,7 @@ class AlbumServices {
     if (!path) throw new InvariantError('Path is required');
 
     const query = {
-      text: 'UPDATE albums SET coverUrl = $1 WHERE id = $2 RETURNING id',
+      text: 'UPDATE albums SET "coverUrl" = $1 WHERE id = $2 RETURNING id',
       values: [path, albumId],
     };
 

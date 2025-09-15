@@ -75,14 +75,12 @@ class AlbumsHandler {
   async addCoverAlbumHandler(request, h) {
     const { id } = request.params;
     const { cover } = request.payload;
-    console.log('sebelum validate');
     this._validatorStorage.validateImageHeaders(cover.hapi.headers);
-    console.log('sesudah validate');
 
     const filename = await this._storageService.writeFile(cover, cover.hapi);
-    const url = `http://${config.app.host}:${config.app.port}/upload/album/cover/${filename}`;
+    const url = `http://${config.app.host}:${config.app.port}/albums/covers/${filename}`;
 
-    await this._storageService.updateCoverByIdAlbum(id, url);
+    await this._albumService.updateCoverByIdAlbum(id, url);
 
     const response = h
       .response({
