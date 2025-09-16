@@ -1,7 +1,5 @@
 import Hapi from '@hapi/hapi';
 import Jwt from '@hapi/jwt';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
 import Inert from '@hapi/inert';
 
 // exception error
@@ -24,6 +22,7 @@ import AuthValidator from './validator/auth/index.js';
 import PlaylistValidator from './validator/playlist/index.js';
 import CollabValidator from './validator/collabs/index.js';
 import ExportValidator from './validator/exports/index.js';
+import UploadsValidator from './validator/uploads/index.js';
 
 // service
 import AlbumServices from './services/postgres/AlbumServices.js';
@@ -33,22 +32,24 @@ import AuthServices from './services/postgres/AuthServices.js';
 import PlaylistServices from './services/postgres/PlaylistServices.js';
 import CollabServices from './services/postgres/CollabServices.js';
 import ProdecureServices from './services/rabbitmq/ProducerServices.js';
+import StorageLocalService from './services/storage/StorageLocalServices.js';
+import CacheService from './services/redis/CacheServices.js';
 
 // token
 import TokenManager from './tokenize/TokenManager.js';
+
+// utils
 import config from './utils/config.js';
-import StorageService from './services/storage/StorageLocalServices.js';
-import UploadsValidator from './validator/uploads/index.js';
 
 const init = async () => {
-  const albumService = new AlbumServices();
+  const cacheService = new CacheService();
+  const albumService = new AlbumServices(cacheService);
   const songService = new SongServices();
   const usersService = new UserServices();
   const authService = new AuthServices();
   const playlistService = new PlaylistServices();
   const collabServices = new CollabServices();
-  const storageService = new StorageService(`${dirname(fileURLToPath(import.meta.url))}/files/images`);
-  // console.log(`${dirname(fileURLToPath(import.meta.url))}/files/images`);
+  const storageLocalService = new StorageLocalService(`${process.cwd()}/uploads`);
 
   const server = Hapi.server({
     port: config.app.port,
@@ -61,9 +62,6 @@ const init = async () => {
   });
 
   server.ext('onPreResponse', (request, h) => {
-    console.log('Incoming Content-Type:', request.headers['content-type']);
-    console.log('Incoming Payload:', request.payload);
-
     const { response } = request;
 
     if (response instanceof ClientError) {
@@ -142,7 +140,7 @@ const init = async () => {
       plugin: albums,
       options: {
         albumService,
-        storageService,
+        storageLocalService,
         validatorAlbums: AlbumsValidator,
         validatorStorage: UploadsValidator,
       },

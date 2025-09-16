@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-class StorageService {
+class StorageLocalService {
   constructor(folder) {
     this._folder = folder;
 
@@ -10,7 +10,7 @@ class StorageService {
   }
 
   writeFile(file, meta) {
-    const filename = +new Date() + meta.filename;
+    const filename = `${+new Date()}-${meta.filename}`;
     const path = `${this._folder}/${filename}`;
 
     const fileStream = fs.createWriteStream(path);
@@ -23,4 +23,4 @@ class StorageService {
   }
 }
 
-export default StorageService;
+export default StorageLocalService;

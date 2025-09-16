@@ -22,7 +22,7 @@ const envSchema = Joi.object({
   RABBITMQ_SERVER: Joi.string().required(),
 
   // Redis
-  // REDIS_SERVER: Joi.string().required(),
+  REDIS_SERVER: Joi.string().required(),
 }).unknown();
 
 export default envSchema;
