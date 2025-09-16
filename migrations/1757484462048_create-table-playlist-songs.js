@@ -28,7 +28,11 @@ export const up = (pgm) => {
    * Constraint untuk mencegah duplikasi lagu
    * di dalam playlist yang sama.
    */
-  pgm.addConstraint('playlist_songs', 'unique_playlist_id_and_song_id', 'UNIQUE(playlist_id, song_id)');
+  pgm.addConstraint(
+    'playlist_songs',
+    'unique_playlist_id_and_song_id',
+    'UNIQUE(playlist_id, song_id)',
+  );
 
   /**
    * Constraint foreign key ke tabel playlists.
@@ -37,14 +41,18 @@ export const up = (pgm) => {
   pgm.addConstraint(
     'playlist_songs',
     'fk_playlist_songs_playlist_id',
-    'FOREIGN KEY(playlist_id) REFERENCES playlists(id) ON DELETE CASCADE'
+    'FOREIGN KEY(playlist_id) REFERENCES playlists(id) ON DELETE CASCADE',
   );
 
   /**
    * Constraint foreign key ke tabel songs.
    * - Jika lagu dihapus, lagu tersebut otomatis hilang dari semua playlist.
    */
-  pgm.addConstraint('playlist_songs', 'fk_playalist_songs_song_id', 'FOREIGN KEY(song_id) REFERENCES songs(id) ON DELETE CASCADE ');
+  pgm.addConstraint(
+    'playlist_songs',
+    'fk_playalist_songs_song_id',
+    'FOREIGN KEY(song_id) REFERENCES songs(id) ON DELETE CASCADE ',
+  );
 };
 
 /**

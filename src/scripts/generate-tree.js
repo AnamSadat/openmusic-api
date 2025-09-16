@@ -9,9 +9,11 @@ const outputFile = path.join(__dirname, 'tree.txt');
 
 async function printTree(dirPath, prefix = '', output = []) {
   const items = await fs.readdir(dirPath, { withFileTypes: true });
-  const filteredItems = items.filter((item) => item.name !== 'node_modules' && item.name !== '.git');
+  const filteredItems = items.filter(
+    (item) => item.name !== 'node_modules' && item.name !== '.git',
+  );
 
-  for (let index = 0; index < filteredItems.length; index++) {
+  for (let index = 0; index < filteredItems.length; index + 1) {
     const item = filteredItems[index];
     const isLast = index === filteredItems.length - 1;
     const pointer = isLast ? '└── ' : '├── ';
@@ -22,6 +24,7 @@ async function printTree(dirPath, prefix = '', output = []) {
 
     if (item.isDirectory()) {
       const newPrefix = prefix + (isLast ? '    ' : '│   ');
+      // eslint-disable-next-line no-await-in-loop
       await printTree(path.join(dirPath, item.name), newPrefix, output);
     }
   }
