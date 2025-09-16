@@ -39,7 +39,7 @@ export const up = (pgm) => {
   pgm.addConstraint(
     'playlist_song_activities',
     'fk_playlist_song_action_playlist_id',
-    'FOREIGN KEY(playlist_id) REFERENCES playlists(id) ON DELETE CASCADE'
+    'FOREIGN KEY(playlist_id) REFERENCES playlists(id) ON DELETE CASCADE',
   );
 };
 

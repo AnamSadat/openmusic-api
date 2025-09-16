@@ -1,4 +1,4 @@
-// src/scripts/tree.js
+// src/scripts/generate-tree.js
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -9,10 +9,12 @@ const outputFile = path.join(__dirname, 'tree.txt');
 
 async function printTree(dirPath, prefix = '', output = []) {
   const items = await fs.readdir(dirPath, { withFileTypes: true });
-  const filteredItems = items.filter((item) => item.name !== 'node_modules' && item.name !== '.git');
+  const filteredItems = items.filter(
+    (item) => item.name !== 'node_modules' && item.name !== '.git',
+  );
 
-  for (let index = 0; index < filteredItems.length; index++) {
-    const item = filteredItems[index];
+  // tampung semua promise rekursi
+  const promises = filteredItems.map(async (item, index) => {
     const isLast = index === filteredItems.length - 1;
     const pointer = isLast ? '└── ' : '├── ';
     const line = prefix + pointer + item.name;
@@ -22,9 +24,13 @@ async function printTree(dirPath, prefix = '', output = []) {
 
     if (item.isDirectory()) {
       const newPrefix = prefix + (isLast ? '    ' : '│   ');
-      await printTree(path.join(dirPath, item.name), newPrefix, output);
+      return printTree(path.join(dirPath, item.name), newPrefix, output);
     }
-  }
+    return null;
+  });
+
+  // jalankan paralel
+  await Promise.all(promises);
 
   return output;
 }
@@ -37,4 +43,5 @@ async function main() {
   console.log(`\nTree structure saved to ${outputFile}`);
 }
 
+// ✅ di sini fungsi printTree kepakai
 main().catch((err) => console.error(err));
