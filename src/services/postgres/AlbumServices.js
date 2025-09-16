@@ -145,8 +145,6 @@ class AlbumServices {
     if (!albumId) throw new InvariantError('Album ID is required');
 
     const resultCache = await this._cacheService.get(`likes-${albumId}`);
-    console.log('🚀 ~ AlbumServices ~ getLikeAlbumById ~ resultCache:', resultCache);
-    console.log('🚀 ~ AlbumServices ~ getLikeAlbumById ~ resultCache:', JSON.parse(resultCache));
 
     if (resultCache) return { likes: JSON.parse(resultCache), isCache: true };
 
@@ -157,8 +155,7 @@ class AlbumServices {
 
     const result = await this._pool.query(query);
 
-    const resultSetCache = await this._cacheService.set(`likes-${albumId}`, result.rowCount);
-    console.log('🚀 ~ AlbumServices ~ getLikeAlbumById ~ resultSetCache:', resultSetCache);
+    await this._cacheService.set(`likes-${albumId}`, result.rowCount);
 
     return { likes: result.rowCount, isCache: false };
   }

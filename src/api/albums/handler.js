@@ -128,7 +128,6 @@ class AlbumsHandler {
     const { id } = request.params;
 
     const { likes, isCache } = await this._albumService.getLikeAlbumById(id);
-    console.log('🚀 ~ AlbumsHandler ~ getLikeAlbumByIdHandler ~ likes:', likes);
 
     const response = h
       .response({
