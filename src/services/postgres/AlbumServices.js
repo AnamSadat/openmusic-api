@@ -5,8 +5,9 @@ import NotFoundError from '../../exceptions/NotFoundError.js';
 import AuthError from '../../exceptions/AuthError.js';
 
 class AlbumServices {
-  constructor() {
+  constructor(cacheService) {
     this._pool = new Pool();
+    this._cacheService = cacheService;
   }
 
   async getAlbums(id) {
@@ -120,6 +121,8 @@ class AlbumServices {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) throw new InvariantError('gagal');
+
+    await this._cacheService.delete(albumId);
   }
 
   async deleteLikeAlbumById(albumId, credentials) {
@@ -133,11 +136,19 @@ class AlbumServices {
 
     const result = await this._pool.query(query);
 
+    await this._cacheService.delete(`likes-${albumId}`);
+
     if (!result.rows.length) throw new NotFoundError('notfound');
   }
 
   async getLikeAlbumById(albumId) {
     if (!albumId) throw new InvariantError('Album ID is required');
+
+    const resultCache = await this._cacheService.get(`likes-${albumId}`);
+    console.log('🚀 ~ AlbumServices ~ getLikeAlbumById ~ resultCache:', resultCache);
+    console.log('🚀 ~ AlbumServices ~ getLikeAlbumById ~ resultCache:', JSON.parse(resultCache));
+
+    if (resultCache) return { likes: JSON.parse(resultCache), isCache: true };
 
     const query = {
       text: 'SELECT id FROM user_album_likes WHERE album_id = $1',
@@ -146,7 +157,10 @@ class AlbumServices {
 
     const result = await this._pool.query(query);
 
-    return result.rowCount;
+    const resultSetCache = await this._cacheService.set(`likes-${albumId}`, result.rowCount);
+    console.log('🚀 ~ AlbumServices ~ getLikeAlbumById ~ resultSetCache:', resultSetCache);
+
+    return { likes: result.rowCount, isCache: false };
   }
 }
 
