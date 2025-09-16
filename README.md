@@ -7,6 +7,10 @@ OpenMusic API adalah aplikasi backend untuk mengelola data lagu, dibangun menggu
 [![Node.js](https://img.shields.io/badge/Node.js-22.x-green?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Hapi.js](https://img.shields.io/badge/Hapi.js-v21-blue)](https://hapi.dev/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.3-blue?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![RabbitMQ](https://img.shields.io/badge/RabbitMQ-3.13-orange?logo=rabbitmq&logoColor=white)](https://www.rabbitmq.com/)
+[![Redis](https://img.shields.io/badge/Redis-7.2-red?logo=redis&logoColor=white)](https://redis.io/)
+[![Nodemailer](https://img.shields.io/badge/Nodemailer-8.x-yellow?logo=gmail&logoColor=white)](https://nodemailer.com/about/)
+[![AWS S3](https://img.shields.io/badge/AWS%20S3-Cloud-orange?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/s3/)
 
 ---
 
@@ -24,6 +28,10 @@ OpenMusic API adalah aplikasi backend untuk mengelola data lagu, dibangun menggu
 - **Playlist Song Management**: Menambah dan menghapus lagu dari playlist.
 - **Collaboration**: Pemilik playlist dapat menambahkan pengguna lain sebagai kolaborator agar bisa ikut mengelola playlist.
 - **Activity Log**: Mencatat setiap aktivitas dalam playlist (misalnya menambahkan atau menghapus lagu), termasuk siapa yang melakukan aksi tersebut.
+- **Export Playlist:** Mengekspor lagu pada playlist melalui **RabbitMQ**, hasil ekspor dikirimkan melalui email menggunakan **Nodemailer**.
+- **Upload Album Cover:** Mengunggah sampul album (lokal/S3) dengan validasi ukuran & tipe file, dan menampilkannya di endpoint detail album.
+- **Album Likes:** Pengguna bisa menyukai atau batal menyukai album. Tiap pengguna hanya bisa menyukai album satu kali.
+- **Server-Side Cache:** Jumlah like album menggunakan cache Redis (bertahan 30 menit), dengan header `X-Data-Source: cache` bila respons dari cache.
 
 ---
 
@@ -35,6 +43,11 @@ OpenMusic API adalah aplikasi backend untuk mengelola data lagu, dibangun menggu
 - **Hapi Plugin Architecture**
 - **Joi** (Data Validation)
 - **PostgreSQL** (Database)
+- **JWT (JSON Web Token)** untuk autentikasi & otorisasi
+- **RabbitMQ** (Message Broker untuk ekspor playlist → [openmusic-api-consumer](https://github.com/AnamSadat/openmusic-api-consumer))
+- **Nodemailer** (Pengiriman email hasil ekspor playlist di sisi [openmusic-api-consumer](https://github.com/AnamSadat/openmusic-api-consumer))
+- **Redis** (Server-side caching untuk jumlah like album)
+- **Multer / AWS S3 SDK** (Upload dan penyimpanan file sampul album)
 
 ---
 
@@ -80,7 +93,7 @@ ACCESS_TOKEN_AGE=1800
 RABBITMQ_SERVER=amqp://localhost
 
 # redis
-REDIS_SERVER=
+REDIS_SERVER=localhost
 ```
 
 Kamu bisa generate ssl untuk `ACCESS_TOKEN_KEY` dan `REFRESH_TOKEN_KEY`:
@@ -155,6 +168,10 @@ Server berjalan di: http://localhost:5000
 | POST   | /albums                            | Tambah album baru                                                        |
 | PUT    | /albums/{id}                       | Update data album                                                        |
 | DELETE | /albums/{id}                       | Hapus album                                                              |
+| POST   | /albums/{id}/covers                | Unggah sampul album (file gambar, max 512KB)                             |
+| POST   | /albums/{id}/likes                 | Menyukai album (hanya bisa sekali per user)                              |
+| DELETE | /albums/{id}/likes                 | Batal menyukai album                                                     |
+| GET    | /albums/{id}/likes                 | Lihat jumlah yang menyukai album (gunakan cache Redis 30 menit)          |
 | GET    | /songs                             | Ambil semua lagu                                                         |
 | GET    | /songs/{id}                        | Ambil detail lagu berdasarkan id                                         |
 | POST   | /songs                             | Tambah lagu baru                                                         |
@@ -173,6 +190,7 @@ Server berjalan di: http://localhost:5000
 | POST   | /collaborations                    | Tambahkan user lain sebagai kolaborator pada playlist                    |
 | DELETE | /collaborations                    | Hapus kolaborator dari playlist                                          |
 | GET    | /playlists/{playlistId}/activities | Ambil riwayat aktivitas playlist (add/delete lagu oleh user/kolaborator) |
+| POST   | /export/playlists/{playlistId}     | Ekspor lagu pada playlist (via RabbitMQ, hasil dikirim ke email target)  |
 
 ## ✅ Testing
 
@@ -193,11 +211,13 @@ openmusic-api/
 ├── src                 # Folder utama kode sumber aplikasi
 │   ├── api             # Route & handler Hapi untuk endpoint API
 │   ├── exceptions      # Kelas custom error handling
-│   ├── scripts         # Script utilitas, misal tree.js
+│   ├── scripts         # Script utilitas, misal generate-ssl.js
 │   ├── services        # Logic bisnis aplikasi (interaksi DB)
 │   ├── tokenize        # Modul untuk JWT / autentikasi
+│   ├── utils           # Helper/utility (termasuk setup config/env & validation)
 │   ├── validator       # Validasi data input menggunakan Joi
 │   └── server.js       # Entry point aplikasi, konfigurasi Hapi server
+├── uploads             # Folder penyimpanan file (contoh: gambar upload lewat Postman)
 ├── .env                # Environment variables untuk konfigurasi lokal
 ├── .env.example        # Contoh format file .env
 ├── .eslintrc.json      # Konfigurasi ESLint
@@ -206,6 +226,4 @@ openmusic-api/
 ├── package-lock.json   # Lock file npm
 ├── package.json        # Metadata proyek & dependensi
 └── README.md           # Dokumentasi proyek, cara setup & penggunaan
-
-
 ```
