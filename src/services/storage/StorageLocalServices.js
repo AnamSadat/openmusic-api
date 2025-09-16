@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-class StorageService {
+class StorageLocalService {
   constructor(folder) {
     this._folder = folder;
 
@@ -23,4 +23,4 @@ class StorageService {
   }
 }
 
-export default StorageService;
+export default StorageLocalService;

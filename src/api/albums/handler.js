@@ -2,9 +2,9 @@ import autoBind from 'auto-bind';
 import config from '../../utils/config.js';
 
 class AlbumsHandler {
-  constructor(albumService, storageService, validatorAlbums, validatorStorage) {
+  constructor(albumService, storageLocalService, validatorAlbums, validatorStorage) {
     this._albumService = albumService;
-    this._storageService = storageService;
+    this._storageLocalService = storageLocalService;
     this._validatorAlbums = validatorAlbums;
     this._validatorStorage = validatorStorage;
 
@@ -77,7 +77,7 @@ class AlbumsHandler {
     const { cover } = request.payload;
     this._validatorStorage.validateImageHeaders(cover.hapi.headers);
 
-    const filename = await this._storageService.writeFile(cover, cover.hapi);
+    const filename = await this._storageLocalService.writeFile(cover, cover.hapi);
     const url = `http://${config.app.host}:${config.app.port}/albums/covers/${filename}`;
 
     await this._albumService.updateCoverByIdAlbum(id, url);
@@ -127,7 +127,8 @@ class AlbumsHandler {
   async getLikeAlbumByIdHandler(request, h) {
     const { id } = request.params;
 
-    const likes = await this._albumService.getLikeAlbumById(id);
+    const { likes, isCache } = await this._albumService.getLikeAlbumById(id);
+    console.log('🚀 ~ AlbumsHandler ~ getLikeAlbumByIdHandler ~ likes:', likes);
 
     const response = h
       .response({
@@ -137,6 +138,8 @@ class AlbumsHandler {
         },
       })
       .code(200);
+
+    if (isCache) return response.header('X-Data-Source', 'cache');
 
     return response;
   }
