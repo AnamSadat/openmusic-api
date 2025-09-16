@@ -32,7 +32,8 @@ import AuthServices from './services/postgres/AuthServices.js';
 import PlaylistServices from './services/postgres/PlaylistServices.js';
 import CollabServices from './services/postgres/CollabServices.js';
 import ProdecureServices from './services/rabbitmq/ProducerServices.js';
-import StorageService from './services/storage/StorageLocalServices.js';
+import StorageLocalService from './services/storage/StorageLocalServices.js';
+import CacheService from './services/redis/CacheServices.js';
 
 // token
 import TokenManager from './tokenize/TokenManager.js';
@@ -41,14 +42,14 @@ import TokenManager from './tokenize/TokenManager.js';
 import config from './utils/config.js';
 
 const init = async () => {
-  const albumService = new AlbumServices();
+  const cacheService = new CacheService();
+  const albumService = new AlbumServices(cacheService);
   const songService = new SongServices();
   const usersService = new UserServices();
   const authService = new AuthServices();
   const playlistService = new PlaylistServices();
   const collabServices = new CollabServices();
-  const storageService = new StorageService(`${process.cwd()}/uploads`);
-  // console.log(`${dirname(fileURLToPath(import.meta.url))}/files/images`);
+  const storageLocalService = new StorageLocalService(`${process.cwd()}/uploads`);
 
   const server = Hapi.server({
     port: config.app.port,
@@ -139,7 +140,7 @@ const init = async () => {
       plugin: albums,
       options: {
         albumService,
-        storageService,
+        storageLocalService,
         validatorAlbums: AlbumsValidator,
         validatorStorage: UploadsValidator,
       },
