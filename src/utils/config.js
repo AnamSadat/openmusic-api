@@ -8,7 +8,6 @@ const validation = EnvironmentValidation.validateEnv();
 const config = {
   app: {
     node_env: validation.NODE_ENV,
-    host: validation.HOST,
     port: validation.PORT,
   },
   db: {
