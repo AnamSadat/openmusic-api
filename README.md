@@ -74,7 +74,6 @@ Buat file .env dan sesuaikan:
 # server configuration
 NODE_ENV=development
 PORT=5000
-HOST=localhost
 
 # database configuration
 PGUSER=your_db_user
@@ -94,6 +93,7 @@ RABBITMQ_SERVER=amqp://localhost
 
 # redis
 REDIS_SERVER=localhost
+REDIS_PORT=
 ```
 
 Kamu bisa generate ssl untuk `ACCESS_TOKEN_KEY` dan `REFRESH_TOKEN_KEY`:
