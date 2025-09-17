@@ -6,6 +6,7 @@ import Inert from '@hapi/inert';
 import ClientError from './exceptions/ClientError.js';
 
 // api
+import index from './api/index/index.js';
 import albums from './api/albums/index.js';
 import songs from './api/songs/index.js';
 import users from './api/users/index.js';
@@ -53,7 +54,7 @@ const init = async () => {
 
   const server = Hapi.server({
     port: config.app.port,
-    host: config.app.host,
+    host: config.app.node_env !== 'production' ? 'localhost' : '0.0.0.0',
     routes: {
       cors: {
         origin: ['*'],
@@ -136,6 +137,9 @@ const init = async () => {
   });
 
   await server.register([
+    {
+      plugin: index,
+    },
     {
       plugin: albums,
       options: {
