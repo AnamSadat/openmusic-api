@@ -22,6 +22,7 @@ const envSchema = Joi.object({
 
   // Redis
   REDIS_SERVER: Joi.string().required(),
+  REDIS_PORT: Joi.number().required(),
 
   // aws s3
   // AWS_S3: Joi.string().required(),

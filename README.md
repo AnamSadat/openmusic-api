@@ -190,6 +190,9 @@ uuidgen
 npm run start
 # or
 npm run start:dev
+
+# production
+npm run start:prod
 ```
 
 Server berjalan di: http://localhost:5000
