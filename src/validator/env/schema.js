@@ -4,7 +4,6 @@ const envSchema = Joi.object({
   // App
   NODE_ENV: Joi.string().valid('development', 'production').default('development'),
   PORT: Joi.number().default(5000),
-  HOST: Joi.string().default('localhost'),
 
   // Database
   PGUSER: Joi.string().required(),
