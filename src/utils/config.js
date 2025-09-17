@@ -1,21 +1,18 @@
 import dotenv from 'dotenv';
 import EnvironmentValidation from '../validator/env/index.js';
 
-dotenv.config();
+const envFile = process.env.NODE_ENV !== 'production' ? '.env.local' : '.env.production';
+
+dotenv.config({ path: envFile });
 
 const validation = EnvironmentValidation.validateEnv();
 
 const config = {
   app: {
     node_env: validation.NODE_ENV,
+    host: validation.HOST,
+    hostProd: validation.HOSTPROD,
     port: validation.PORT,
-  },
-  db: {
-    user: validation.PGUSER,
-    password: validation.PGPASSWORD,
-    database: validation.PGDATABASE,
-    host: validation.PGHOST,
-    port: validation.PGPORT,
   },
   auth: {
     accessTokenKey: validation.ACCESS_TOKEN_KEY,
@@ -23,11 +20,21 @@ const config = {
     accessTokenAge: validation.ACCESS_TOKEN_AGE,
   },
   rabbitMq: {
-    server: validation.RABBITMQ_SERVER,
+    server:
+      validation.NODE_ENV !== 'production' ? validation.RABBITMQ_SERVER : validation.AWS_AMAZONMQ,
   },
   redis: {
     host: validation.REDIS_SERVER,
     port: validation.REDIS_PORT,
+  },
+  aws: {
+    // s3: {
+    //   server:
+    // },
+    // elasticache: {
+    //   host:
+    //   port:
+    // }
   },
 };
 

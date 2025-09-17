@@ -68,11 +68,14 @@ npm install
 
 3. Konfigurasi environment variables:
 
-Buat file .env dan sesuaikan:
+Buat file `.env.local` dan `.env.production` lalu sesuaikan:
+
+- `.env.local`
 
 ```env
 # server configuration
 NODE_ENV=development
+HOST=localhost
 PORT=5000
 
 # database configuration
@@ -94,6 +97,37 @@ RABBITMQ_SERVER=amqp://localhost
 # redis
 REDIS_SERVER=localhost
 REDIS_PORT=
+```
+
+- `.env.production`
+
+```env
+# server configuration
+NODE_ENV=development
+HOSTPROD=
+PORT=5000
+
+# database configuration
+PGUSER=your_db_user
+PGPASSWORD=your_db_password
+PGHOST=localhost
+PGDATABASE=openmusic
+PGPORT=5432
+PORT=5000
+
+# authentication
+ACCESS_TOKEN_KEY=
+REFRESH_TOKEN_KEY=
+ACCESS_TOKEN_AGE=1800
+
+# aws amazonmq
+AWS_AMAZONMQ=
+
+# aws s3
+AWS_S3=
+
+# aws elasticache
+AWS_ELASTICACHE=
 ```
 
 Kamu bisa generate ssl untuk `ACCESS_TOKEN_KEY` dan `REFRESH_TOKEN_KEY`:
