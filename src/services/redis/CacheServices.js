@@ -6,6 +6,7 @@ class CacheService {
     this._client = redis.createClient({
       socket: {
         host: config.redis.host,
+        port: config.redis.port,
       },
     });
 

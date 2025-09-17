@@ -28,6 +28,7 @@ const config = {
   },
   redis: {
     host: validation.REDIS_SERVER,
+    port: validation.REDIS_PORT,
   },
 };
 
