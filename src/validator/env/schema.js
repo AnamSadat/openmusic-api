@@ -4,7 +4,7 @@ const envSchema = Joi.object({
   // App
   NODE_ENV: Joi.string().valid('development', 'production').default('development'),
   HOST: Joi.string().when('NODE_ENV', { is: 'development', then: Joi.required() }),
-  HOSTPROD: Joi.number().when('NODE_ENV', { is: 'production', then: Joi.required() }),
+  HOSTPROD: Joi.string().when('NODE_ENV', { is: 'production', then: Joi.required() }),
   PORT: Joi.number().default(5000),
 
   // Authentication
