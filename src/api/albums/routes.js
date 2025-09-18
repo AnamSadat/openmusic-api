@@ -19,6 +19,10 @@ const routes = (handler) => [
     path: '/albums/{id}',
     handler: handler.deleteAlbumHandler,
   },
+  /**
+   * @description Local
+   * Using Local Storage
+   */
   {
     method: 'POST',
     path: '/albums/{id}/covers',
@@ -32,6 +36,23 @@ const routes = (handler) => [
       },
     },
   },
+  /**
+   * @description AWS
+   * Using AWS S3 Service
+   */
+  // {
+  //   method: 'POST',
+  //   path: '/albums/{id}/covers',
+  //   handler: handler.addCoverAlbumCloudHandler,
+  //   options: {
+  //     payload: {
+  //       allow: 'multipart/form-data',
+  //       multipart: true,
+  //       output: 'stream',
+  //       maxBytes: 512000,
+  //     },
+  //   },
+  // },
   {
     method: 'GET',
     path: '/albums/covers/{param*}',

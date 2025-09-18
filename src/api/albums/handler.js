@@ -2,9 +2,16 @@ import autoBind from 'auto-bind';
 import config from '../../utils/config.js';
 
 class AlbumsHandler {
-  constructor(albumService, storageLocalService, validatorAlbums, validatorStorage) {
+  constructor(
+    albumService,
+    storageLocalService,
+    storageCloudService,
+    validatorAlbums,
+    validatorStorage,
+  ) {
     this._albumService = albumService;
     this._storageLocalService = storageLocalService;
+    this._storageCloudService = storageCloudService;
     this._validatorAlbums = validatorAlbums;
     this._validatorStorage = validatorStorage;
 
@@ -79,6 +86,25 @@ class AlbumsHandler {
 
     const filename = await this._storageLocalService.writeFile(cover, cover.hapi);
     const url = `http://${config.app.host}:${config.app.port}/albums/covers/${filename}`;
+
+    await this._albumService.updateCoverByIdAlbum(id, url);
+
+    const response = h
+      .response({
+        status: 'success',
+        message: 'Sampul berhasil diunggah',
+      })
+      .code(201);
+
+    return response;
+  }
+
+  async addCoverAlbumCloudHandler(request, h) {
+    const { id } = request.params;
+    const { cover } = request.payload;
+    this._validatorStorage.validateImageHeaders(cover.hapi.headers);
+
+    const url = await this._storageCloudService.writeFile(cover, cover.hapi);
 
     await this._albumService.updateCoverByIdAlbum(id, url);
 
