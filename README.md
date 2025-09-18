@@ -68,13 +68,12 @@ npm install
 
 3. Konfigurasi environment variables:
 
-Buat file `.env.local` dan `.env.production` lalu sesuaikan:
+Buat file `.env.development` dan `.env.production` lalu sesuaikan:
 
-- `.env.local`
+- `.env.development`
 
 ```env
 # server configuration
-NODE_ENV=development
 HOST=localhost
 PORT=5000
 
@@ -103,7 +102,6 @@ REDIS_PORT=
 
 ```env
 # server configuration
-NODE_ENV=development
 HOSTPROD=
 PORT=5000
 

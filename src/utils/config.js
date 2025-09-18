@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import EnvironmentValidation from '../validator/env/index.js';
 
-const envFile = process.env.NODE_ENV !== 'production' ? '.env.local' : '.env.production';
+const envFile = process.env.NODE_ENV !== 'production' ? '.env.development' : '.env.production';
 
 dotenv.config({ path: envFile });
 
