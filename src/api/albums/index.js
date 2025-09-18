@@ -6,11 +6,12 @@ export default {
   version: '1.0.0',
   register: async (
     server,
-    { albumService, storageLocalService, validatorAlbums, validatorStorage },
+    { albumService, storageLocalService, storageCloudService, validatorAlbums, validatorStorage },
   ) => {
     const albumsHandler = new AlbumsHandler(
       albumService,
       storageLocalService,
+      storageCloudService,
       validatorAlbums,
       validatorStorage,
     );

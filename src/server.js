@@ -35,6 +35,7 @@ import CollabServices from './services/postgres/CollabServices.js';
 import ProdecureServices from './services/rabbitmq/ProducerServices.js';
 import StorageLocalService from './services/storage/StorageLocalServices.js';
 import CacheService from './services/redis/CacheServices.js';
+import StorageCloudService from './services/storage/StorageCloudServices.js';
 
 // token
 import TokenManager from './tokenize/TokenManager.js';
@@ -51,6 +52,7 @@ const init = async () => {
   const playlistService = new PlaylistServices();
   const collabServices = new CollabServices();
   const storageLocalService = new StorageLocalService(`${process.cwd()}/uploads`);
+  const storageCloudService = new StorageCloudService();
 
   const server = Hapi.server({
     port: config.app.port,
@@ -145,6 +147,7 @@ const init = async () => {
       options: {
         albumService,
         storageLocalService,
+        storageCloudService,
         validatorAlbums: AlbumsValidator,
         validatorStorage: UploadsValidator,
       },

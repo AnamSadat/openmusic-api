@@ -25,7 +25,20 @@ const envSchema = Joi.object({
   REDIS_PORT: Joi.number().required(),
 
   // aws s3
-  // AWS_S3: Joi.string().required(),
+  AWS_ACCESS_KEY_ID: Joi.string().when('NODE_ENV', { is: 'production', then: Joi.required() }),
+  AWS_SECRET_ACCESS_KEY: Joi.string().when('NODE_ENV', { is: 'production', then: Joi.required() }),
+  AWS_REGION: Joi.string().when('NODE_ENV', { is: 'production', then: Joi.required() }),
+  AWS_BUCKET_NAME: Joi.string().when('NODE_ENV', { is: 'production', then: Joi.required() }),
+
+  /**
+   * @description Local
+   * If using S3 in localhost
+   */
+  // AWS_ACCESS_KEY_ID: Joi.string().when('NODE_ENV', { is: 'development', then: Joi.required() }),
+  // AWS_SECRET_ACCESS_KEY: Joi.string().when('NODE_ENV', {
+  //  is: 'development', then: Joi.required() }),
+  // AWS_REGION: Joi.string().when('NODE_ENV', { is: 'development', then: Joi.required() }),
+  // AWS_BUCKET_NAME: Joi.string().when('NODE_ENV', { is: 'development', then: Joi.required() }),
 }).unknown();
 
 export default envSchema;

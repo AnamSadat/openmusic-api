@@ -28,9 +28,12 @@ const config = {
     port: validation.REDIS_PORT,
   },
   aws: {
-    // s3: {
-    //   server:
-    // },
+    s3: {
+      accessKeyId: validation.AWS_ACCESS_KEY_ID,
+      secretAccessKey: validation.AWS_SECRET_ACCESS_KEY,
+      region: validation.AWS_REGION,
+      bucket: validation.AWS_BUCKET_NAME,
+    },
     // elasticache: {
     //   host:
     //   port:
