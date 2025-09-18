@@ -13,7 +13,7 @@ class ExportHandler {
   async addExportPlaylistHandler(request, h) {
     const { id: credentials } = request.auth.credentials;
 
-    if (!credentials) throw new AuthError('harus login');
+    if (!credentials) throw new AuthError('User must be logged in');
 
     this._validator.validationExportPayload(request.payload);
 
@@ -32,7 +32,7 @@ class ExportHandler {
     const response = h
       .response({
         status: 'success',
-        message: 'Permintaan Anda sedang kami proses',
+        message: 'Your export request is being processed',
       })
       .code(201);
 
