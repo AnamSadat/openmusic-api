@@ -24,7 +24,8 @@ const config = {
       validation.NODE_ENV !== 'production' ? validation.RABBITMQ_SERVER : validation.AWS_AMAZONMQ,
   },
   redis: {
-    host: validation.REDIS_SERVER,
+    host:
+      validation.NODE_ENV !== 'production' ? validation.REDIS_SERVER : validation.AWS_ELASTICACHE,
     port: validation.REDIS_PORT,
   },
   aws: {
@@ -34,10 +35,6 @@ const config = {
       region: validation.AWS_REGION,
       bucket: validation.AWS_BUCKET_NAME,
     },
-    // elasticache: {
-    //   host:
-    //   port:
-    // }
   },
 };
 
