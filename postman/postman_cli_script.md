@@ -37,5 +37,5 @@ postman collection run ./postman/v3/openmusic_api_v3_collection.json -e ./postma
 ### aws
 
 ```bash
-postman collection run ./postman/aws/openmusic_api_v3_collection.json -e ./postman/aws/openmusic_api_v3_environment.json
+postman collection run ./postman/aws/openmusic_api_v3_collection_with_aws.json -e ./postman/aws/openmusic_api_v3_environment_with_aws.json --env-var host=<your_host>
 ```

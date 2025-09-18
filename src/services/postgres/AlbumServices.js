@@ -85,14 +85,14 @@ class AlbumServices {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) throw new NotFoundError('Tidak ditemukan');
+    if (!result.rows.length) throw new NotFoundError('Album not found');
 
     return result.rows[0].id;
   }
 
   async addLikeAlbumById(albumId, credentials) {
     if (!albumId) throw new InvariantError('Album ID is required');
-    if (!credentials) throw new AuthError('Credentials is required');
+    if (!credentials) throw new AuthError('User credentials are required');
 
     const id = `like-${nanoid(16)}`;
 
@@ -102,7 +102,7 @@ class AlbumServices {
     };
     const resultAlbum = await this._pool.query(checkAlbum);
 
-    if (!resultAlbum.rows.length) throw new NotFoundError('Album tidak ditemukan');
+    if (!resultAlbum.rows.length) throw new NotFoundError('Album not found');
 
     const checkLike = {
       text: 'SELECT id FROM user_album_likes WHERE user_id = $1 AND album_id = $2',
@@ -111,7 +111,7 @@ class AlbumServices {
 
     const resultCheck = await this._pool.query(checkLike);
 
-    if (resultCheck.rows.length) throw new InvariantError('Sudah like gk bisa');
+    if (resultCheck.rows.length) throw new InvariantError('Album already liked by this user');
 
     const query = {
       text: 'INSERT INTO user_album_likes VALUES($1, $2, $3) RETURNING id',
@@ -120,14 +120,14 @@ class AlbumServices {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) throw new InvariantError('gagal');
+    if (!result.rows.length) throw new InvariantError('Failed to like album');
 
     await this._cacheService.delete(albumId);
   }
 
   async deleteLikeAlbumById(albumId, credentials) {
     if (!albumId) throw new InvariantError('Album ID is required');
-    if (!credentials) throw new InvariantError('Credentials is required');
+    if (!credentials) throw new InvariantError('User credentials are required');
 
     const query = {
       text: 'DELETE FROM user_album_likes WHERE user_id = $1 AND album_id = $2 RETURNING id',
@@ -138,7 +138,9 @@ class AlbumServices {
 
     await this._cacheService.delete(`likes-${albumId}`);
 
-    if (!result.rows.length) throw new NotFoundError('notfound');
+    if (!result.rows.length) {
+      throw new NotFoundError('Like record not found for this album and user');
+    }
   }
 
   async getLikeAlbumById(albumId) {

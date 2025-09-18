@@ -92,7 +92,7 @@ class AlbumsHandler {
     const response = h
       .response({
         status: 'success',
-        message: 'Sampul berhasil diunggah',
+        message: 'Album cover has been successfully uploaded',
       })
       .code(201);
 
@@ -111,7 +111,7 @@ class AlbumsHandler {
     const response = h
       .response({
         status: 'success',
-        message: 'Sampul berhasil diunggah',
+        message: 'Album cover has been successfully uploaded',
       })
       .code(201);
 
@@ -127,7 +127,7 @@ class AlbumsHandler {
     const response = h
       .response({
         status: 'success',
-        message: 'Berhasil like',
+        message: 'Album has been successfully liked',
       })
       .code(201);
 
@@ -143,7 +143,7 @@ class AlbumsHandler {
     const response = h
       .response({
         status: 'success',
-        message: 'Berhasil dihapus',
+        message: 'Like has been successfully removed',
       })
       .code(200);
 
