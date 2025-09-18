@@ -17,12 +17,9 @@ const envSchema = Joi.object({
   AWS_AMAZONMQ: Joi.string().when('NODE_ENV', { is: 'production', then: Joi.required() }),
 
   // Redis / ElastiCache
-  // REDIS_SERVER: Joi.string().when('NODE_ENV', { is: 'development', then: Joi.required() }),
-  // AWS_ELASTICACHE: Joi.string().when('NODE_ENV', { is: 'production', then: Joi.required() }),
-
-  // Redis
-  REDIS_SERVER: Joi.string().required(),
-  REDIS_PORT: Joi.number().required(),
+  REDIS_SERVER: Joi.string().when('NODE_ENV', { is: 'development', then: Joi.required() }),
+  REDIS_PORT: Joi.string().when('NODE_ENV', { is: 'development', then: Joi.required() }),
+  AWS_ELASTICACHE: Joi.string().when('NODE_ENV', { is: 'production', then: Joi.required() }),
 
   // aws s3
   AWS_ACCESS_KEY_ID: Joi.string().when('NODE_ENV', { is: 'production', then: Joi.required() }),
