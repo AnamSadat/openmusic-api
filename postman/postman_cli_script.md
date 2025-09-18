@@ -33,3 +33,9 @@ postman collection run ./postman/v2/openmusic_api_v2_collection.json -e ./postma
 ```bash
 postman collection run ./postman/v3/openmusic_api_v3_collection.json -e ./postman/v3/openmusic_api_v3_environment.json
 ```
+
+### aws
+
+```bash
+postman collection run ./postman/aws/openmusic_api_v3_collection.json -e ./postman/aws/openmusic_api_v3_environment.json
+```
