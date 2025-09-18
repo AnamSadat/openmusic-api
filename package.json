@@ -18,6 +18,8 @@
   "license": "ISC",
   "description": "Submission Fundamental Backend",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.891.0",
+    "@aws-sdk/s3-request-presigner": "^3.891.0",
     "@hapi/hapi": "^21.3.2",
     "@hapi/inert": "^7.1.0",
     "@hapi/jwt": "^3.2.0",
