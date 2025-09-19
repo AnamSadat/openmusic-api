@@ -2264,9 +2264,10 @@
               "script": {
                 "exec": [
                   "const port = pm.environment.get('port');\r",
+                  "const host = pm.environment.get('host');\r",
                   "\r",
                   "const requestParams = {\r",
-                  "  url: `http://{{host}}:${port}/users`,\r",
+                  "  url: `http://${host}:${port}/users`,\r",
                   "  method: 'POST',\r",
                   "  header: {\r",
                   "    'Content-Type': 'application/json',\r",
